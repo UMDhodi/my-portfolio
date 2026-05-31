@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getTimeline, getCertifications, saveMessage } from "@/app/actions/admin";
 
 // Declare globals injected by CDN scripts
@@ -27,6 +27,11 @@ export default function Portfolio() {
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [certsData, setCertsData] = useState<any[]>([]);
   const [formStatus, setFormStatus] = useState({ loading: false, success: false, error: "" });
+
+  // ── ADMIN BUTTON ────────────────────────────────────────────────────────
+  const handleAdminClick = useCallback(() => {
+    window.location.href = "/admin";
+  }, []);
 
   useEffect(() => {
     getTimeline().then(setTimelineData);
@@ -217,22 +222,7 @@ export default function Portfolio() {
     };
     window.addEventListener("load", initThree);
 
-    // ── ADMIN BUTTON ─────────────────────────────────────────────────────────
-    const adminBtn = document.getElementById("admin-btn");
-    let adminClicks = 0;
-    let adminTimer: ReturnType<typeof setTimeout>;
-    const onAdminClick = () => {
-      adminClicks++;
-      clearTimeout(adminTimer);
-      if (adminClicks >= 3) {
-        adminClicks = 0;
-        const code = prompt("Access code:");
-        if (code === "signal2026") window.location.href = "/admin";
-      } else {
-        adminTimer = setTimeout(() => { adminClicks = 0; }, 600);
-      }
-    };
-    adminBtn?.addEventListener("click", onAdminClick);
+
 
     // ── CLEANUP ──────────────────────────────────────────────────────────────
     return () => {
@@ -246,7 +236,7 @@ export default function Portfolio() {
       if (lenisRaf !== null) cancelAnimationFrame(lenisRaf);
       if (lenis) lenis.destroy();
       cancelAnimationFrame(cursorRaf);
-      adminBtn?.removeEventListener("click", onAdminClick);
+
     };
   }, []);
 
@@ -633,8 +623,8 @@ export default function Portfolio() {
             <span>Mayank Dhodi © 2026</span>
             <span>All rights reserved.</span>
             <span>Built with precision.</span>
-            {/* Admin button: 3 rapid clicks → prompt → /admin — no Link wrapper that bypasses the gate */}
-            <button className="admin-btn" id="admin-btn" aria-label="Admin">
+            {/* Admin button: 3 rapid clicks → prompt → /admin */}
+            <button className="admin-btn" id="admin-btn" aria-label="Admin" onClick={handleAdminClick}>
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.2">
                 <rect x="2" y="6" width="10" height="7" rx="1" />
                 <path d="M4 6V4a3 3 0 016 0v2" />

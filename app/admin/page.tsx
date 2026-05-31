@@ -2,13 +2,11 @@
 
 import { useState } from "react";
 import { login } from "@/app/actions/auth";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function AdminLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,8 +17,7 @@ export default function AdminLogin() {
     const res = await login(formData);
     
     if (res.success) {
-      router.push("/admin/dashboard");
-      router.refresh();
+      window.location.href = "/admin/dashboard";
     } else {
       setError(res.error || "Login failed");
       setLoading(false);
