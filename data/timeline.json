@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "year": "2021",
+    "title": "Bachelor of Computer Applications",
+    "desc": "Complete my graduation from Chandigarh university in Bachelor of Computer Applications (BCA)"
+  },
+  {
+    "id": "2",
+    "year": "2023",
+    "title": "Data Analytics Essentials",
+    "desc": "Data Analysis skills and bring valuable insights to the table"
+  },
+  {
+    "id": "3",
+    "year": "2024",
+    "title": "Google Data Analytics",
+    "desc": "Understand how to clean and organize data for analysis, and complete analysis and calculations using spreadsheets, SQL and Python"
+  },
+  {
+    "id": "4",
+    "year": "2026",
+    "title": "Claude Code in Action",
+    "desc": "This course focused on practical implementation of AI-assisted coding using Claude, covering real-world workflows, structured prompting for development tasks, and improving efficiency in writing, debugging, and understanding code. Gained hands-on exposure to leveraging AI for faster development cycles, better problem-solving, and building more reliable solutions. This adds a strong layer to my skill set in AI-driven development and automation."
+  },
+  {
+    "id": "5",
+    "year": "NOW",
+    "title": "Co-Founder",
+    "desc": "Co-founder of Niora Star agency of Web Solution, AI solution, Business Operation"
+  }
+]

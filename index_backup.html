@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mayank — Creative Developer</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* CSS Custom Properties */
+    @property --progress {
+      syntax: '<number>';
+      inherits: true;
+      initial-value: 0;
+    }
+
+    @property --lerp {
+      syntax: '<number>';
+      inherits: true;
+      initial-value: 0;
+    }
+
+    :root {
+      --font-display: 'Syne', sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      --color-bg: #080808;
+      --color-surface: #0f0f0f;
+      --color-border: rgba(255, 255, 255, 0.08);
+      --color-text: #f0f0f0;
+      --color-muted: rgba(240, 240, 240, 0.45);
+      --color-accent: #00AAFF;
+      --color-accent-warm: #FF5533;
+      --easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+      --easing-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Reset */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-display);
+      background: var(--color-bg);
+      color: var(--color-text);
+      line-height: 1.5;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    body.is-loaded #main {
+      visibility: visible;
+    }
+
+    body:not(.is-loaded) #main {
+      visibility: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: inherit;
+      border: none;
+      background: none;
+      cursor: none;
+    }
+
+    .mono {
+      font-family: var(--font-mono);
+    }
+
+    /* === PRELOADER === */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: clip-path 0.9s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+
+    body.is-loaded #preloader {
+      clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+      pointer-events: none;
+    }
+
+    .preloader-wave {
+      font-family: var(--font-mono);
+      font-size: 1.5rem;
+      color: var(--color-accent);
+      letter-spacing: 0.2em;
+      margin-bottom: 2rem;
+      min-height: 1.5rem;
+    }
+
+    .preloader-counter {
+      font-family: var(--font-mono);
+      font-size: 4rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1rem;
+    }
+
+    .preloader-text {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    /* === CUSTOM CURSOR === */
+    #cursor-dot {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+    }
+
+    #cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9997;
+      transform: translate(-50%, -50%);
+      transition: transform 0.12s ease, width 0.2s ease, height 0.2s ease, border-color 0.2s ease;
+    }
+
+    a:hover ~ #cursor-ring,
+    button:hover ~ #cursor-ring,
+    .magnetic:hover ~ #cursor-ring {
+      width: 56px;
+      height: 56px;
+      border-color: var(--color-accent);
+    }
+
+    @media (hover: none) {
+      #cursor-dot, #cursor-ring {
+        display: none;
+      }
+      body {
+        cursor: auto;
+      }
+    }
+
+    /* === SCROLL BAR === */
+    #scroll-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      background: var(--color-accent);
+      z-index: 9997;
+      width: calc(var(--progress) * 100%);
+      pointer-events: none;
+      transition: width 0.1s linear;
+    }
+
+    /* === NAV === */
+    #nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s ease, padding 0.3s ease;
+    }
+
+    #nav.scrolled {
+      background: rgba(8, 8, 8, 0.92);
+      backdrop-filter: blur(12px);
+      padding: 1rem 2rem;
+    }
+
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-status {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-accent);
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--color-accent);
+      border-radius: 100px;
+    }
+
+    /* === HERO === */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 12vw, 8rem);
+      font-weight: 900;
+      line-height: 0.9;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title .char {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(60px);
+    }
+
+    body.is-loaded .hero-title .char {
+      animation: char-in 0.8s var(--easing-smooth) forwards;
+    }
+
+    @keyframes char-in {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-sub {
+      font-size: 1.25rem;
+      color: var(--color-muted);
+      margin-bottom: 2.5rem;
+      max-width: 500px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      padding: 1rem 2rem;
+      border: 1px solid var(--color-border);
+      border-radius: 100px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .btn-primary {
+      background: #fff;
+      color: #000;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #fff;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, var(--color-accent), transparent);
+      animation: scroll-pulse 2s ease-in-out infinite;
+    }
+
+    .scroll-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--color-accent);
+      border-radius: 50%;
+      animation: scroll-dot-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes scroll-pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes scroll-dot-pulse {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(10px); }
+    }
+
+    /* === TICKER === */
+    .ticker-wrap {
+      background: var(--color-surface);
+      padding: 1.5rem 0;
+      overflow: hidden;
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .ticker {
+      display: flex;
+      gap: 3rem;
+      white-space: nowrap;
+      animation: scroll-left 18s linear infinite;
+    }
+
+    .ticker span {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      letter-spacing: 0.1em;
+    }
+
+    .ticker .dot {
+      color: var(--color-accent);
+    }
+
+    @keyframes scroll-left {
+      from { transform: translateX(0); }
+      to { transform: translateX(-33.33%); }
+    }
+
+    /* === ABOUT === */
+    #about {
+      padding: 8rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 768px) {
+      #about {
+        grid-template-columns: 1fr 1fr;
+        gap: 6rem;
+      }
+    }
+
+    .about-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .about-word {
+      font-size: clamp(3rem, 10vw, 7rem);
+      font-weight: 900;
+      line-height: 0.85;
+      opacity: calc(var(--progress));
+      transform: translateX(calc((1 - var(--progress)) * -80px));
+      transition: none;
+      will-change: opacity, transform;
+    }
+
+    .about-right p {
+      font-size: 1.125rem;
+      color: var(--color-muted);
+      line-height: 1.8;
+      margin-bottom: 3rem;
+      max-width: 500px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-num {
+      font-family: var(--font-mono);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--color-accent);
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* === SERVICES === */
+    #services {
+      padding: 8rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 4rem;
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .services-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .service-card {
+      padding: 2rem;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      background: var(--color-surface);
+      opacity: var(--progress);
+      transform: translateY(calc((1 - var(--progress)) * 60px));
+      transition: none;
+      will-change: opacity, transform;
+    }
+
+    .service-num {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-accent);
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    .service-card h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .service-card p {
+      font-size: 0.875rem;
+      color: var(--color-muted);
+      line-height: 1.6;
+    }
+
+    /* === WORK === */
+    #work {
+      padding: 8rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .work-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 4rem;
+    }
+
+    .work-header h2 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+    }
+
+    .work-count {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      color: var(--color-muted);
+    }
+
+    .work-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .work-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .work-card {
+      position: relative;
+      aspect-ratio: 4/3;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: none;
+      opacity: var(--progress);
+      transform: translateY(calc((1 - var(--progress)) * 100px));
+      transition: none;
+      will-change: opacity, transform;
+    }
+
+    .work-card.featured {
+      @media (min-width: 768px) {
+        grid-column: span 2;
+      }
+    }
+
+    .work-img {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #111 0%, #0a0a0a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .work-img-pattern {
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(circle at 30% 40%, rgba(0, 170, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 70% 60%, rgba(255, 85, 51, 0.08) 0%, transparent 40%),
+        repeating-linear-gradient(45deg, transparent 0px, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);
+    }
+
+    .work-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+      transform: translateY(calc((1 - var(--progress)) * 20px));
+    }
+
+    .work-info h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .work-info p {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      margin-bottom: 1rem;
+    }
+
+    .work-link {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--color-accent);
+    }
+
+    /* === MANIFESTO === */
+    #manifesto {
+      padding: 10rem 2rem;
+      background: var(--color-surface);
+    }
+
+    .manifesto-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .manifesto-text {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .manifesto-text .word {
+      display: inline-block;
+      opacity: 0.15;
+      transition: opacity 0.4s ease;
+      margin: 0 0.3rem;
+    }
+
+    .manifesto-text .word.visible {
+      opacity: 1;
+    }
+
+    /* === CONTACT === */
+    #contact {
+      padding: 10rem 2rem;
+      text-align: center;
+    }
+
+    .contact-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      display: block;
+      margin-bottom: 2rem;
+    }
+
+    .contact-email {
+      font-size: clamp(2rem, 6vw, 4rem);
+      font-weight: 700;
+      background: linear-gradient(90deg, #fff, var(--color-accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .contact-email::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--color-accent), transparent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s var(--easing-smooth);
+    }
+
+    .contact-email:hover::after {
+      transform: scaleX(1);
+    }
+
+    .contact-links {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .contact-links a {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      color: var(--color-muted);
+      transition: color 0.3s ease;
+    }
+
+    .contact-links a:hover {
+      color: var(--color-accent);
+    }
+
+    /* === FOOTER === */
+    footer {
+      padding: 2rem;
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    footer span {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--color-muted);
+    }
+
+    .footer-center {
+      text-align: center;
+    }
+
+    .footer-right {
+      text-align: right;
+    }
+
+    /* === UTILITIES === */
+    .reveal-section > * {
+      opacity: var(--progress);
+      transform: translateY(calc((1 - var(--progress)) * 40px));
+      transition: opacity 0.1s linear, transform 0.1s linear;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      #nav {
+        padding: 1rem;
+      }
+
+      .hero-ctas {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 280px;
+        text-align: center;
+      }
+
+      .stats {
+        gap: 2rem;
+      }
+
+      footer {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .footer-right {
+        text-align: center;
+      }
+    }
+
+    /* Disable Three.js on mobile */
+    @media (max-width: 768px) {
+      #hero-canvas {
+        display: none;
+      }
+      #hero {
+        background: linear-gradient(180deg, #080808 0%, #0a0a12 100%);
+      }
+    }
+  </style>
+</head>
+
+<body string="loading" string-loading-class="is-loaded">
+
+  <!-- PRELOADER -->
+  <div id="preloader">
+    <div class="preloader-wave" id="wave">▁▂▃▄▅▆▇█▇▆▅▄▃▂▁</div>
+    <div class="preloader-counter" id="counter">00</div>
+    <div class="preloader-text">Tuning Signal...</div>
+  </div>
+
+  <!-- CUSTOM CURSOR -->
+  <div id="cursor-dot" string="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- SCROLL PROGRESS BAR -->
+  <div id="scroll-bar" string="progress" string-start="top top" string-end="bottom bottom"></div>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#" class="nav-logo">MK.</a>
+    <span class="nav-status">Available for work</span>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div id="main">
+
+    <!-- HERO -->
+    <section id="hero">
+      <canvas id="hero-canvas"></canvas>
+      <div class="hero-content">
+        <p class="hero-eyebrow mono">Creative Developer / Digital Craftsman</p>
+        <h1 class="hero-title" string="split" string-split-type="chars">SIGNAL FOUND.</h1>
+        <p class="hero-sub">I build things that remember they're alive.</p>
+        <div class="hero-ctas">
+          <a href="#work" class="btn btn-primary" string="magnetic" string-magnetic-strength="0.25">View Work ↓</a>
+          <a href="#contact" class="btn btn-secondary" string="magnetic" string-magnetic-strength="0.25">Get in Touch →</a>
+        </div>
+      </div>
+      <div class="hero-scroll">
+        <div class="scroll-line"></div>
+        <div class="scroll-dot"></div>
+      </div>
+    </section>
+
+    <!-- TICKER -->
+    <div class="ticker-wrap" aria-hidden="true">
+      <div class="ticker" string="lerp" string-lerp="0.05">
+        <span>WEB DEV</span><span class="dot">·</span><span>AI AUTOMATION</span><span class="dot">·</span><span>BRAND IDENTITY</span><span class="dot">·</span><span>MOTION</span><span class="dot">·</span><span>3D</span><span class="dot">·</span><span>UI/UX</span><span class="dot">·</span><span>WEB DEV</span><span class="dot">·</span><span>AI AUTOMATION</span><span class="dot">·</span><span>BRAND IDENTITY</span><span class="dot">·</span><span>MOTION</span><span class="dot">·</span><span>3D</span><span class="dot">·</span><span>UI/UX</span><span class="dot">·</span><span>WEB DEV</span><span class="dot">·</span><span>AI AUTOMATION</span><span class="dot">·</span><span>BRAND IDENTITY</span><span class="dot">·</span><span>MOTION</span><span class="dot">·</span><span>3D</span><span class="dot">·</span><span>UI/UX</span><span class="dot">·</span>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <section class="about" id="about">
+      <div class="about-left">
+        <div string="progress" string-start="top 80%" string-end="center center" class="about-word">ABOUT</div>
+        <div string="progress" string-start="top 70%" string-end="center center" class="about-word">THE</div>
+        <div string="progress" string-start="top 60%" string-end="center center" class="about-word">SIGNAL</div>
+      </div>
+      <div class="about-right">
+        <p>I'm Mayank — a web developer and digital strategist based in India. I specialize in building digital experiences that feel alive. From clean, performant websites to AI-powered automation tools, I turn chaotic ideas into precise, impactful solutions.</p>
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-num">50+</span>
+            <span class="stat-label">Projects</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">3</span>
+            <span class="stat-label">Markets</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num">∞</span>
+            <span class="stat-label">Iterations</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="services" id="services">
+      <h2 string="split" string-split-type="words" class="section-eyebrow">What I Build</h2>
+      <div class="services-grid">
+        <div class="service-card" string="progress" string-start="top 90%" string-end="top 40%">
+          <span class="service-num">01</span>
+          <h3>Web Development</h3>
+          <p>Fast, clean, alive. Sites that convert and hold attention.</p>
+        </div>
+        <div class="service-card" string="progress" string-start="top 90%" string-end="top 40%">
+          <span class="service-num">02</span>
+          <h3>Logo & Brand Identity</h3>
+          <p>Visual systems that speak before you do.</p>
+        </div>
+        <div class="service-card" string="progress" string-start="top 90%" string-end="top 40%">
+          <span class="service-num">03</span>
+          <h3>Mobile App Development</h3>
+          <p>Native and cross-platform experiences that feel native.</p>
+        </div>
+        <div class="service-card" string="progress" string-start="top 90%" string-end="top 40%">
+          <span class="service-num">04</span>
+          <h3>AI Automation</h3>
+          <p>Intelligent workflows that save time and scale.</p>
+        </div>
+        <div class="service-card" string="progress" string-start="top 90%" string-end="top 40%">
+          <span class="service-num">05</span>
+          <h3>Social Media Campaigns</h3>
+          <p>Strategy and creative that cuts through the noise.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- WORK -->
+    <section class="work" id="work">
+      <div class="work-header">
+        <h2>Selected Work</h2>
+        <span class="work-count">(04)</span>
+      </div>
+      <div class="work-grid">
+        <article class="work-card featured" string="progress" string-start="top 85%" string-end="top 30%">
+          <div class="work-img">
+            <div class="work-img-pattern"></div>
+          </div>
+          <div class="work-info">
+            <h3>Restaurant AI Agent</h3>
+            <p>Voiceflow · NLP · Booking Automation</p>
+            <a href="#" class="work-link" string="magnetic" string-magnetic-strength="0.2">View ↗</a>
+          </div>
+        </article>
+        <article class="work-card" string="progress" string-start="top 85%" string-end="top 30%">
+          <div class="work-img">
+            <div class="work-img-pattern"></div>
+          </div>
+          <div class="work-info">
+            <h3>Social Media Dashboard</h3>
+            <p>Upload-Post API · Analytics</p>
+            <a href="#" class="work-link" string="magnetic" string-magnetic-strength="0.2">View ↗</a>
+          </div>
+        </article>
+        <article class="work-card" string="progress" string-start="top 85%" string-end="top 30%">
+          <div class="work-img">
+            <div class="work-img-pattern"></div>
+          </div>
+          <div class="work-info">
+            <h3>Brand Identity System</h3>
+            <p>Logo · Campaign · Guidelines</p>
+            <a href="#" class="work-link" string="magnetic" string-magnetic-strength="0.2">View ↗</a>
+          </div>
+        </article>
+        <article class="work-card" string="progress" string-start="top 85%" string-end="top 30%">
+          <div class="work-img">
+            <div class="work-img-pattern"></div>
+          </div>
+          <div class="work-info">
+            <h3>AI Automation Tool</h3>
+            <p>Client-facing · Workflow Builder</p>
+            <a href="#" class="work-link" string="magnetic" string-magnetic-strength="0.2">View ↗</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- MANIFESTO -->
+    <section class="manifesto" id="manifesto">
+      <div class="manifesto-content">
+        <p class="manifesto-text" string="split" string-split-type="words">
+          I believe the web should feel like it's breathing.
+          Not just scrolling. Not just loading.
+          Alive. Precise. Intentional.
+          Every pixel placed with reason.
+          Every interaction earned.
+        </p>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact" id="contact">
+      <span class="contact-label">Let's build something</span>
+      <a href="mailto:hello@mayank.dev" class="contact-email" string="magnetic" string-magnetic-strength="0.15">hello@mayank.dev</a>
+      <div class="contact-links">
+        <a href="#" string="magnetic" string-magnetic-strength="0.15">LinkedIn ↗</a>
+        <a href="#" string="magnetic" string-magnetic-strength="0.15">GitHub ↗</a>
+        <a href="#" string="magnetic" string-magnetic-strength="0.15">Twitter ↗</a>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <span class="footer-left">MK. 2026</span>
+      <span class="footer-center">Signal Found.</span>
+      <span class="footer-right">Built with precision.</span>
+    </footer>
+
+  </div>
+
+  <!-- SCROLLBAR -->
+  <div string="scrollbar" string-scrollbar-color="#00AAFF" string-scrollbar-width="3px"></div>
+
+  <!-- StringTune -->
+  <script src="https://unpkg.com/@fiddle-digital/string-tune@1.2.0/dist/index.js"></script>
+  <script>
+    // Initialize StringTune
+    const tune = StringTune.StringTune.getInstance();
+    tune.use(StringTune.StringLoading);
+    tune.use(StringTune.StringProgress);
+    tune.use(StringTune.StringParallax);
+    tune.use(StringTune.StringLerp);
+    tune.use(StringTune.StringCursor);
+    tune.use(StringTune.StringMagnetic);
+    tune.use(StringTune.StringSplit);
+    tune.use(StringTune.StringScrollbar);
+    tune.start(0);
+
+    // Stagger hero chars on load
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const chars = document.querySelectorAll('.hero-title .char');
+        chars.forEach((char, i) => {
+          char.style.animationDelay = `${i * 0.05}s`;
+        });
+      }, 100);
+    });
+
+    // Nav scroll behavior
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 80);
+    });
+
+    // Manifesto word reveal with IntersectionObserver
+    const manifestoText = document.querySelector('.manifesto-text');
+    if (manifestoText) {
+      const words = manifestoText.querySelectorAll('.word');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.5 });
+      words.forEach(w => io.observe(w));
+    }
+  </script>
+
+  <!-- Three.js Hero Canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Only run Three.js on non-mobile
+    if (window.innerWidth > 768) {
+      const canvas = document.getElementById('hero-canvas');
+      if (canvas) {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Wave plane geometry
+        const geo = new THREE.PlaneGeometry(20, 12, 100, 60);
+        const mat = new THREE.MeshBasicMaterial({
+          color: 0x00aaff,
+          wireframe: true,
+          transparent: true,
+          opacity: 0.08
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        scene.add(mesh);
+
+        // Particle system for MAYANK text particles
+        const particleCount = 200;
+        const particleGeo = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const particleMat = new THREE.PointsMaterial({
+          color: 0x00aaff,
+          size: 0.05,
+          transparent: true,
+          opacity: 0.6
+        });
+
+        // Initialize particle positions scattered
+        for (let i = 0; i < particleCount; i++) {
+          positions[i * 3] = (Math.random() - 0.5) * 15;
+          positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
+          positions[i * 3 + 2] = (Math.random() - 0.5) * 2;
+        }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particles = new THREE.Points(particleGeo, particleMat);
+        scene.add(particles);
+
+        let t = 0;
+        let scrollProgress = 0;
+
+        // Track scroll for wave chaos
+        window.addEventListener('scroll', () => {
+          scrollProgress = Math.min(window.scrollY / window.innerHeight, 1);
+        });
+
+        // Animation loop
+        function animate() {
+          if (document.hidden) return;
+          requestAnimationFrame(animate);
+
+          t += 0.005;
+
+          // Animate wave mesh
+          const pos = geo.attributes.position;
+          for (let i = 0; i < pos.count; i++) {
+            const x = pos.getX(i);
+            const z = pos.getZ(i);
+            const chaos = Math.max(0.2, 1 - scrollProgress * 0.8);
+            pos.setY(i, Math.sin(x * 1.2 + t) * Math.cos(z * 1.0 + t * 0.7) * chaos * 0.5);
+          }
+          pos.needsUpdate = true;
+          geo.computeVertexNormals();
+
+          // Animate particles - drift and form pattern
+          const pPos = particleGeo.attributes.position;
+          for (let i = 0; i < particleCount; i++) {
+            const px = pPos.getX(i);
+            const py = pPos.getY(i);
+
+            // Subtle movement
+            pPos.setX(i, px + Math.sin(t + i * 0.1) * 0.002);
+            pPos.setY(i, py + Math.cos(t + i * 0.1) * 0.002);
+          }
+          pPos.needsUpdate = true;
+
+          // Rotate particles slowly
+          particles.rotation.z = Math.sin(t * 0.5) * 0.1;
+
+          renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+      }
+    }
+  </script>
+
+  <!-- Preloader Animation -->
+  <script>
+    // Preloader counter and wave animation
+    (function() {
+      const counter = document.getElementById('counter');
+      const wave = document.getElementById('wave');
+      let count = 0;
+      const target = 100;
+      const duration = 2000;
+      const interval = duration / target;
+
+      const waveChars = ['▁', '▂', '▃', '▄', '▅', '▆', '▇', '█', '▇', '▆', '▅', '▄', '▃', '▂'];
+      let waveIndex = 0;
+
+      const timer = setInterval(() => {
+        count++;
+        counter.textContent = count < 10 ? '0' + count : count;
+
+        // Animate wave
+        waveIndex = (waveIndex + 1) % waveChars.length;
+        let waveStr = '';
+        for (let i = 0; i < 13; i++) {
+          const idx = (waveIndex + i) % waveChars.length;
+          waveStr += waveChars[idx];
+        }
+        wave.textContent = waveStr;
+
+        if (count >= target) {
+          clearInterval(timer);
+        }
+      }, interval);
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+{
+  "changes_this_session": [],
+  "cwd": "D:\\website proto\\stringtune\\stringtune-portfolio",
+  "duration_minutes": 0,
+  "ended_at": "2026-05-17T07:19:38Z",
+  "event_seq": 0,
+  "fork_count": 0,
+  "git": {
+    "branch": "master",
+    "last_commit": "10b0a57",
+    "uncommitted_changes": 0
+  },
+  "harness_mem": {
+    "healthy": true,
+    "last_checked": "2026-05-17T07:19:14Z",
+    "last_error": ""
+  },
+  "last_event_id": "",
+  "memory_logged": true,
+  "orchestration": {
+    "max_state_retries": 3,
+    "retry_backoff_seconds": 10
+  },
+  "parent_session_id": null,
+  "plans": {
+    "completed_tasks": 0,
+    "exists": false,
+    "last_modified": 0,
+    "pending_tasks": 0,
+    "todo_tasks": 0,
+    "wip_tasks": 0
+  },
+  "project_name": "stringtune-portfolio",
+  "prompt_seq": 0,
+  "resume_token": "resume-1779002355368538600",
+  "session_id": "session-1779002355368538600",
+  "started_at": "2026-05-17T07:19:14Z",
+  "state": "stopped",
+  "state_version": 1,
+  "updated_at": "2026-05-17T07:19:14Z"
+}
