@@ -4,10 +4,10 @@ import "./globals.css";
 
 /* eslint-disable @next/next/no-page-custom-font */
 
-const SITE_URL = "https://mayankdhodi.com";
-const SITE_NAME = "Mayank Dhodi — Full-Stack Developer, Data Analyst & AI Engineer";
+const SITE_URL = "https://mayankdhodi.vercel.app/";
+const SITE_NAME = "Mayank Dhodi";
 const SITE_DESCRIPTION =
-  "Portfolio of Mayank Dhodi — Certified Data Analyst, Full-Stack Developer, and Prompt Engineer. Specializing in web development, AI automation, brand identity, and data-driven solutions. Based in India, available remotely across UAE & USA.";
+  "Portfolio of Mayank Dhodi Certified Data Analyst, Full-Stack Developer, and Prompt Engineer. Specializing in web development, AI automation, brand identity, and data-driven solutions. Based in India, available remotely across UAE & USA.";
 
 export const metadata: Metadata = {
   // ─── CORE META ──────────────────────────────────────────────────────────
