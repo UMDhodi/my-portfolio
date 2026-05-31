@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,7 +9,9 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800;900&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800;900&display=swap"
+    rel="stylesheet" />
 
   <style>
     /* CSS Custom Properties */
@@ -39,7 +42,9 @@
     }
 
     /* Reset */
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -150,18 +155,21 @@
       transition: transform 0.12s ease, width 0.2s ease, height 0.2s ease, border-color 0.2s ease;
     }
 
-    a:hover ~ #cursor-ring,
-    button:hover ~ #cursor-ring,
-    .magnetic:hover ~ #cursor-ring {
+    a:hover~#cursor-ring,
+    button:hover~#cursor-ring,
+    .magnetic:hover~#cursor-ring {
       width: 56px;
       height: 56px;
       border-color: var(--color-accent);
     }
 
     @media (hover: none) {
-      #cursor-dot, #cursor-ring {
+
+      #cursor-dot,
+      #cursor-ring {
         display: none;
       }
+
       body {
         cursor: auto;
       }
@@ -338,13 +346,27 @@
     }
 
     @keyframes scroll-pulse {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
+
+      0%,
+      100% {
+        opacity: 0.3;
+      }
+
+      50% {
+        opacity: 1;
+      }
     }
 
     @keyframes scroll-dot-pulse {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(10px); }
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(10px);
+      }
     }
 
     /* === TICKER === */
@@ -374,8 +396,13 @@
     }
 
     @keyframes scroll-left {
-      from { transform: translateX(0); }
-      to { transform: translateX(-33.33%); }
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-33.33%);
+      }
     }
 
     /* === ABOUT === */
@@ -582,7 +609,7 @@
       background:
         radial-gradient(circle at 30% 40%, rgba(0, 170, 255, 0.1) 0%, transparent 50%),
         radial-gradient(circle at 70% 60%, rgba(255, 85, 51, 0.08) 0%, transparent 40%),
-        repeating-linear-gradient(45deg, transparent 0px, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 20px);
+        repeating-linear-gradient(45deg, transparent 0px, transparent 10px, rgba(255, 255, 255, 0.02) 10px, rgba(255, 255, 255, 0.02) 20px);
     }
 
     .work-info {
@@ -591,7 +618,7 @@
       left: 0;
       right: 0;
       padding: 2rem;
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
       transform: translateY(calc((1 - var(--progress)) * 20px));
     }
 
@@ -734,7 +761,7 @@
     }
 
     /* === UTILITIES === */
-    .reveal-section > * {
+    .reveal-section>* {
       opacity: var(--progress);
       transform: translateY(calc((1 - var(--progress)) * 40px));
       transition: opacity 0.1s linear, transform 0.1s linear;
@@ -776,6 +803,7 @@
       #hero-canvas {
         display: none;
       }
+
       #hero {
         background: linear-gradient(180deg, #080808 0%, #0a0a12 100%);
       }
@@ -817,7 +845,8 @@
         <p class="hero-sub">I build things that remember they're alive.</p>
         <div class="hero-ctas">
           <a href="#work" class="btn btn-primary" string="magnetic" string-magnetic-strength="0.25">View Work ↓</a>
-          <a href="#contact" class="btn btn-secondary" string="magnetic" string-magnetic-strength="0.25">Get in Touch →</a>
+          <a href="#contact" class="btn btn-secondary" string="magnetic" string-magnetic-strength="0.25">Get in Touch
+            →</a>
         </div>
       </div>
       <div class="hero-scroll">
@@ -829,7 +858,15 @@
     <!-- TICKER -->
     <div class="ticker-wrap" aria-hidden="true">
       <div class="ticker" string="lerp" string-lerp="0.05">
-        <span>WEB DEV</span><span class="dot">·</span><span>AI AUTOMATION</span><span class="dot">·</span><span>BRAND IDENTITY</span><span class="dot">·</span><span>MOTION</span><span class="dot">·</span><span>3D</span><span class="dot">·</span><span>UI/UX</span><span class="dot">·</span><span>WEB DEV</span><span class="dot">·</span><span>AI AUTOMATION</span><span class="dot">·</span><span>BRAND IDENTITY</span><span class="dot">·</span><span>MOTION</span><span class="dot">·</span><span>3D</span><span class="dot">·</span><span>UI/UX</span><span class="dot">·</span><span>WEB DEV</span><span class="dot">·</span><span>AI AUTOMATION</span><span class="dot">·</span><span>BRAND IDENTITY</span><span class="dot">·</span><span>MOTION</span><span class="dot">·</span><span>3D</span><span class="dot">·</span><span>UI/UX</span><span class="dot">·</span>
+        <span>WEB DEV</span><span class="dot">·</span><span>AI AUTOMATION</span><span class="dot">·</span><span>BRAND
+          IDENTITY</span><span class="dot">·</span><span>MOTION</span><span class="dot">·</span><span>3D</span><span
+          class="dot">·</span><span>UI/UX</span><span class="dot">·</span><span>WEB DEV</span><span
+          class="dot">·</span><span>AI AUTOMATION</span><span class="dot">·</span><span>BRAND IDENTITY</span><span
+          class="dot">·</span><span>MOTION</span><span class="dot">·</span><span>3D</span><span
+          class="dot">·</span><span>UI/UX</span><span class="dot">·</span><span>WEB DEV</span><span
+          class="dot">·</span><span>AI AUTOMATION</span><span class="dot">·</span><span>BRAND IDENTITY</span><span
+          class="dot">·</span><span>MOTION</span><span class="dot">·</span><span>3D</span><span
+          class="dot">·</span><span>UI/UX</span><span class="dot">·</span>
       </div>
     </div>
 
@@ -841,7 +878,9 @@
         <div string="progress" string-start="top 60%" string-end="center center" class="about-word">SIGNAL</div>
       </div>
       <div class="about-right">
-        <p>I'm Mayank — a web developer and digital strategist based in India. I specialize in building digital experiences that feel alive. From clean, performant websites to AI-powered automation tools, I turn chaotic ideas into precise, impactful solutions.</p>
+        <p>I'm Mayank — a web developer and digital strategist based in India. I specialize in building digital
+          experiences that feel alive. From clean, performant websites to AI-powered automation tools, I turn chaotic
+          ideas into precise, impactful solutions.</p>
         <div class="stats">
           <div class="stat">
             <span class="stat-num">50+</span>
@@ -957,7 +996,8 @@
     <!-- CONTACT -->
     <section class="contact" id="contact">
       <span class="contact-label">Let's build something</span>
-      <a href="mailto:hello@mayank.dev" class="contact-email" string="magnetic" string-magnetic-strength="0.15">hello@mayank.dev</a>
+      <a href="mailto:mayankdhodi17@gmail.com" class="contact-email" string="magnetic"
+        string-magnetic-strength="0.15">mayankdhodi17@gmail.com</a>
       <div class="contact-links">
         <a href="#" string="magnetic" string-magnetic-strength="0.15">LinkedIn ↗</a>
         <a href="#" string="magnetic" string-magnetic-strength="0.15">GitHub ↗</a>
@@ -1129,7 +1169,7 @@
   <!-- Preloader Animation -->
   <script>
     // Preloader counter and wave animation
-    (function() {
+    (function () {
       const counter = document.getElementById('counter');
       const wave = document.getElementById('wave');
       let count = 0;
@@ -1161,4 +1201,5 @@
   </script>
 
 </body>
+
 </html>

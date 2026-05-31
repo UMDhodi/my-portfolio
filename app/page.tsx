@@ -304,15 +304,15 @@ export default function Portfolio() {
       <div className="scroll-progress" suppressHydrationWarning></div>
 
       {/* NAV */}
-      <nav id="nav">
-        <span className="nav-logo mono">MK.</span>
+      <nav id="nav" aria-label="Main navigation">
+        <span className="nav-logo mono" aria-label="Mayank Dhodi">MK.</span>
         <a href="#contact" className="nav-pill">Available for work</a>
       </nav>
 
       <main id="main">
 
         {/* HERO */}
-        <section id="hero" data-bg="#080808">
+        <section id="hero" data-bg="#080808" aria-label="Hero introduction">
           {/* Animated sine wave background — blue + gray */}
           <div className="hero-waves" aria-hidden="true">
             <svg className="hero-wave-svg" viewBox="0 0 1400 500" preserveAspectRatio="none">
@@ -326,7 +326,7 @@ export default function Portfolio() {
           </div>
           <canvas id="hero-canvas" suppressHydrationWarning></canvas>
           <div className="hero-content">
-            <span className="hero-eyebrow mono">VIBE BUILDER / DATA-DRIVEN THINKER</span>
+            <span className="hero-eyebrow mono">FULL-STACK DEVELOPER / DATA ANALYST / AI ENGINEER</span>
             <h1 className="hero-title" id="hero-title">
               <span className="hero-line">Mayank</span>
               <span className="hero-line">Dhodi</span>
@@ -371,7 +371,7 @@ export default function Portfolio() {
         </section>
 
         {/* ABOUT */}
-        <section className="about-section" data-bg="#080808">
+        <section className="about-section" data-bg="#080808" aria-label="About Mayank Dhodi" id="about">
           <div className="about-left">
             <div className="about-deco">
               <span className="deco-num mono">01</span>
@@ -434,7 +434,7 @@ export default function Portfolio() {
         </div>
 
         {/* TIMELINE */}
-        <section className="timeline-section" id="timeline">
+        <section className="timeline-section" id="timeline" aria-label="Career timeline">
           <div className="timeline-header">
             <span className="timeline-label mono">JOURNEY</span>
             <h2>How I Got Here</h2>
@@ -461,7 +461,7 @@ export default function Portfolio() {
         </section>
 
         {/* CERTIFICATIONS */}
-        <section className="work-section" id="certifications" data-bg="#080808">
+        <section className="work-section" id="certifications" data-bg="#080808" aria-label="Professional certifications">
           <div className="work-header">
             <h2 string="split|inview" data-string-split="word|char">Certifications</h2>
             <span className="work-count mono" string="inview">({certsData.length < 10 ? `0${certsData.length}` : certsData.length})</span>
@@ -471,7 +471,7 @@ export default function Portfolio() {
               <article key={p._id || i} className={`work-card${i === 0 ? " featured" : ""}`}>
                 <div className="work-img">
                   {p.image ? (
-                    <img src={p.image} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <img src={p.image} alt={`${p.title} certification from ${p.issuer}`} loading="lazy" width="600" height="450" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                   ) : (
                     <div className="work-img-pattern"></div>
                   )}
@@ -495,7 +495,7 @@ export default function Portfolio() {
                       </svg>
                     </span>
                   )}
-                  {p.link && <a href={p.link} target="_blank" rel="noreferrer" className="work-link" style={{ marginTop: "1rem", display: "inline-block" }}>View ↗</a>}
+                  {p.link && <a href={p.link} target="_blank" rel="noopener noreferrer" className="work-link" style={{ marginTop: "1rem", display: "inline-block" }} aria-label={`View ${p.title} certification`}>View ↗</a>}
                 </div>
               </article>
             ))}
@@ -506,7 +506,7 @@ export default function Portfolio() {
         </section>
 
         {/* CONTACT — full form + social icons */}
-        <section className="contact-section" id="contact" data-bg="#0a0a0a">
+        <section className="contact-section" id="contact" data-bg="#0a0a0a" aria-label="Contact form">
           <div className="contact-top">
             <span className="contact-label mono">Get in touch</span>
             <h2 className="contact-heading">Let&apos;s Build<br />Something Real.</h2>
@@ -556,25 +556,25 @@ export default function Portfolio() {
             <div className="contact-info-col">
               <div className="contact-info-block">
                 <h3>Direct</h3>
-                <a href="mailto:hello@mayank.dev" className="contact-email-link">hello@mayank.dev</a>
+                <a href="mailto:mayankdhodi17@gmail.com" className="contact-email-link">mayankdhodi17@gmail.com</a>
               </div>
               <div className="contact-info-block">
                 <h3>Social</h3>
                 <div className="social-grid">
-                  <a href="https://www.linkedin.com/in/mayank-dhodi/" className="social-link" rel="noopener noreferrer">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00aaff" strokeWidth="1.5"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
+                  <a href="https://www.linkedin.com/in/mayank-dhodi/" className="social-link" rel="noopener noreferrer" target="_blank" aria-label="Visit Mayank Dhodi on LinkedIn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00aaff" strokeWidth="1.5" aria-hidden="true"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z" /><rect x="2" y="9" width="4" height="12" /><circle cx="4" cy="4" r="2" /></svg>
                     <span className="social-name">LinkedIn</span>
                   </a>
-                  <a href="https://github.com/UMDhodi" className="social-link" rel="noopener noreferrer">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00aaff" strokeWidth="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" /></svg>
+                  <a href="https://github.com/UMDhodi" className="social-link" rel="noopener noreferrer" target="_blank" aria-label="Visit Mayank Dhodi on GitHub">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00aaff" strokeWidth="1.5" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" /></svg>
                     <span className="social-name">GitHub</span>
                   </a>
                   <a href="https://ko-fi.com/mayankdhodi" className="social-link" rel="noopener noreferrer" target="_blank">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00aaff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1" /><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z" /><line x1="6" y1="2" x2="6" y2="4" /><line x1="10" y1="2" x2="10" y2="4" /><line x1="14" y1="2" x2="14" y2="4" /></svg>
                     <span className="social-name">ko-fi</span>
                   </a>
-                  <a href="https://www.instagram.com/mayvxnk/" className="social-link" rel="noopener noreferrer">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00aaff" strokeWidth="1.5"><rect x="2" y="2" width="20" height="20" rx="5" /><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
+                  <a href="https://www.instagram.com/mayvxnk/" className="social-link" rel="noopener noreferrer" target="_blank" aria-label="Visit Mayank Dhodi on Instagram">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00aaff" strokeWidth="1.5" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" /><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
                     <span className="social-name">Instagram</span>
                   </a>
                 </div>
@@ -588,7 +588,7 @@ export default function Portfolio() {
         </section>
 
         {/* FOOTER */}
-        <footer className="site-footer" data-bg="#080808">
+        <footer className="site-footer" data-bg="#080808" role="contentinfo">
           <div className="footer-art">
             <div className="footer-mirror" aria-hidden="true"><span>SIGNAL FOUND</span></div>
             <svg className="footer-waves" viewBox="0 0 1400 300" preserveAspectRatio="xMidYMid slice">
@@ -616,15 +616,15 @@ export default function Portfolio() {
             <div className="footer-col">
               <h4>Connect</h4>
               <ul>
-                <li><a href="https://www.linkedin.com/in/mayank-dhodi/">LinkedIn ↗</a></li>
-                <li><a href="https://github.com/UMDhodi/">GitHub ↗</a></li>
-                <li><a href="https://www.instagram.com/mayvxnk/">Instagram ↗</a></li>
+                <li><a href="https://www.linkedin.com/in/mayank-dhodi/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile">LinkedIn ↗</a></li>
+                <li><a href="https://github.com/UMDhodi/" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile">GitHub ↗</a></li>
+                <li><a href="https://www.instagram.com/mayvxnk/" target="_blank" rel="noopener noreferrer" aria-label="Instagram profile">Instagram ↗</a></li>
               </ul>
             </div>
             <div className="footer-col">
               <h4>Contact</h4>
               <ul>
-                <li><a href="mailto:hello@mayank.dev" className="footer-contact-email">hello@mayank.dev</a></li>
+                <li><a href="mailto:mayankdhodi17@gmail.com" className="footer-contact-email">mayankdhodi17@gmail.com</a></li>
                 <li><a href="#">India</a></li>
               </ul>
             </div>
