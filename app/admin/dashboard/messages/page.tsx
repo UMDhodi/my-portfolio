@@ -229,6 +229,7 @@ export default function MessagesManager() {
                       <button 
                         type="submit" 
                         disabled={replyStatus.loading || !replyText.trim()}
+                        className="admin-btn-primary"
                         style={{ 
                           padding: "0.75rem 1.5rem", 
                           background: replyStatus.loading ? "rgba(255,255,255,0.1)" : "#fff", 

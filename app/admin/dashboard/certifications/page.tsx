@@ -145,6 +145,7 @@ export default function CertificationsManager() {
 
           <button 
             onClick={handleCreateNew}
+            className="admin-btn-primary"
             style={{ padding: "0.5rem 1rem", background: "white", color: "black", border: "none", borderRadius: "6px", fontWeight: "600", cursor: "pointer" }}
           >
             + New
@@ -208,7 +209,7 @@ export default function CertificationsManager() {
                     </>
                   )}
                   {isEditing && (
-                    <button form="certForm" type="submit" style={{ ...actionBtnStyle, background: "white", color: "black", borderColor: "white", fontWeight: "600" }}>Save</button>
+                    <button form="certForm" type="submit" className="admin-btn-primary" style={{ ...actionBtnStyle, background: "white", color: "black", borderColor: "white", fontWeight: "600" }}>Save</button>
                   )}
                 </div>
               </div>

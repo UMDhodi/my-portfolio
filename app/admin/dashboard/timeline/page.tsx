@@ -45,6 +45,7 @@ export default function TimelineManager() {
         <h1 style={{ fontSize: "2rem", fontWeight: "600", letterSpacing: "-0.02em" }}>Timeline Events</h1>
         <button 
           onClick={() => setEditingId("new")}
+          className="admin-btn-primary"
           style={{ padding: "0.5rem 1rem", background: "white", color: "black", border: "none", borderRadius: "6px", fontWeight: "600", cursor: "pointer" }}
         >
           + Add Event
@@ -74,7 +75,7 @@ export default function TimelineManager() {
             </div>
 
             <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-              <button type="submit" style={{ padding: "0.75rem 1.5rem", background: "white", color: "black", border: "none", borderRadius: "6px", fontWeight: "600", cursor: "pointer" }}>Save</button>
+              <button type="submit" className="admin-btn-primary" style={{ padding: "0.75rem 1.5rem", background: "white", color: "black", border: "none", borderRadius: "6px", fontWeight: "600", cursor: "pointer" }}>Save</button>
               <button type="button" onClick={() => setEditingId(null)} style={{ padding: "0.75rem 1.5rem", background: "transparent", color: "white", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "6px", cursor: "pointer" }}>Cancel</button>
             </div>
           </form>
