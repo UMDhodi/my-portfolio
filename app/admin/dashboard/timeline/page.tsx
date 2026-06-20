@@ -7,8 +7,10 @@ import { useRouter } from "next/navigation";
 export default function TimelineManager() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [isNew, setIsNew] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const router = useRouter();
 
   async function loadData() {
@@ -22,12 +24,29 @@ export default function TimelineManager() {
     loadData();
   }, []);
 
+  function openNew() {
+    setEditingItem({ year: "", title: "", desc: "" });
+    setIsNew(true);
+  }
+
+  function openEdit(item: any) {
+    setEditingItem({ ...item });
+    setIsNew(false);
+  }
+
+  function closeForm() {
+    setEditingItem(null);
+    setIsNew(false);
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setSaving(true);
     const formData = new FormData(e.currentTarget);
     await saveTimelineItem(formData);
-    setEditingId(null);
-    loadData();
+    setSaving(false);
+    closeForm();
+    await loadData();
     router.refresh();
   }
 
@@ -35,75 +54,122 @@ export default function TimelineManager() {
     if (!deleteId) return;
     await deleteTimelineItem(deleteId);
     setDeleteId(null);
-    loadData();
+    await loadData();
     router.refresh();
   }
 
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "2rem", fontWeight: "600", letterSpacing: "-0.02em" }}>Timeline Events</h1>
-        <button 
-          onClick={() => setEditingId("new")}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
+        <h1 style={{ fontSize: "clamp(1.4rem, 4vw, 2rem)", fontWeight: "600", letterSpacing: "-0.02em" }}>Timeline Events</h1>
+        <button
+          onClick={openNew}
           className="admin-btn-primary"
-          style={{ padding: "0.5rem 1rem", background: "white", color: "black", border: "none", borderRadius: "6px", fontWeight: "600", cursor: "pointer" }}
+          style={{ padding: "0.5rem 1rem", background: "white", color: "black", border: "none", borderRadius: "6px", fontWeight: "600", cursor: "pointer", whiteSpace: "nowrap" }}
         >
           + Add Event
         </button>
       </div>
 
-      {editingId && (
+      {editingItem && (
         <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", padding: "1.5rem", borderRadius: "12px", marginBottom: "2rem" }}>
-          <h2 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>{editingId === "new" ? "New Event" : "Edit Event"}</h2>
+          <h2 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>{isNew ? "New Event" : "Edit Event"}</h2>
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            {editingId !== "new" && <input type="hidden" name="id" value={editingId} />}
-            
-            <div style={{ display: "flex", gap: "1rem" }}>
-              <div style={{ flex: 1 }}>
+            {/* Pass MongoDB _id for edits */}
+            {!isNew && editingItem._id && <input type="hidden" name="_id" value={editingItem._id} />}
+
+            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+              <div style={{ flex: "1 1 100px", minWidth: "100px" }}>
                 <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.85rem", color: "var(--c-muted)" }}>Year</label>
-                <input type="text" name="year" required defaultValue={items.find(i => i.id === editingId)?.year} style={inputStyle} />
+                <input
+                  type="text"
+                  name="year"
+                  required
+                  defaultValue={editingItem.year}
+                  style={inputStyle}
+                />
               </div>
-              <div style={{ flex: 2 }}>
+              <div style={{ flex: "2 1 200px", minWidth: "200px" }}>
                 <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.85rem", color: "var(--c-muted)" }}>Title</label>
-                <input type="text" name="title" required defaultValue={items.find(i => i.id === editingId)?.title} style={inputStyle} />
+                <input
+                  type="text"
+                  name="title"
+                  required
+                  defaultValue={editingItem.title}
+                  style={inputStyle}
+                />
               </div>
-            </div>
-            
-            <div>
-              <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.85rem", color: "var(--c-muted)" }}>Description</label>
-              <textarea name="desc" required defaultValue={items.find(i => i.id === editingId)?.desc} style={{ ...inputStyle, minHeight: "100px", resize: "vertical" }} />
             </div>
 
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-              <button type="submit" className="admin-btn-primary" style={{ padding: "0.75rem 1.5rem", background: "white", color: "black", border: "none", borderRadius: "6px", fontWeight: "600", cursor: "pointer" }}>Save</button>
-              <button type="button" onClick={() => setEditingId(null)} style={{ padding: "0.75rem 1.5rem", background: "transparent", color: "white", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "6px", cursor: "pointer" }}>Cancel</button>
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.85rem", color: "var(--c-muted)" }}>Description</label>
+              <textarea
+                name="desc"
+                required
+                defaultValue={editingItem.desc}
+                style={{ ...inputStyle, minHeight: "100px", resize: "vertical" }}
+              />
+            </div>
+
+            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem", flexWrap: "wrap" }}>
+              <button
+                type="submit"
+                disabled={saving}
+                className="admin-btn-primary"
+                style={{ padding: "0.75rem 1.5rem", background: "white", color: "black", border: "none", borderRadius: "6px", fontWeight: "600", cursor: "pointer", opacity: saving ? 0.7 : 1 }}
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
+              <button
+                type="button"
+                onClick={closeForm}
+                style={{ padding: "0.75rem 1.5rem", background: "transparent", color: "white", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "6px", cursor: "pointer" }}
+              >
+                Cancel
+              </button>
             </div>
           </form>
         </div>
       )}
 
       {loading ? (
-        <p>Loading timeline...</p>
+        <p style={{ color: "var(--c-muted)" }}>Loading timeline...</p>
+      ) : items.length === 0 ? (
+        <p style={{ color: "var(--c-muted)", textAlign: "center", padding: "3rem 0" }}>
+          No timeline events yet. Click &quot;+ Add Event&quot; to create one.
+        </p>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          {items.map(item => (
-            <div key={item.id} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)", padding: "1.5rem", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-              <div>
+          {items.map((item) => (
+            <div
+              key={item._id}
+              style={{
+                background: "rgba(255,255,255,0.02)",
+                border: "1px solid rgba(255,255,255,0.05)",
+                padding: "1.5rem",
+                borderRadius: "12px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: "1rem",
+                flexWrap: "wrap",
+              }}
+            >
+              <div style={{ flex: 1, minWidth: "200px" }}>
                 <span style={{ fontFamily: "var(--font-mono)", color: "#00aaff", fontSize: "0.9rem" }}>{item.year}</span>
                 <h3 style={{ fontSize: "1.2rem", margin: "0.5rem 0" }}>{item.title}</h3>
                 <p style={{ color: "var(--c-muted)", fontSize: "0.9rem", maxWidth: "600px", lineHeight: "1.6" }}>{item.desc}</p>
               </div>
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                <button onClick={() => setEditingId(item.id)} style={actionBtnStyle}>Edit</button>
-                <button onClick={() => setDeleteId(item.id)} style={{ ...actionBtnStyle, color: "#ff4444" }}>Delete</button>
+              <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
+                <button onClick={() => openEdit(item)} style={actionBtnStyle}>Edit</button>
+                <button onClick={() => setDeleteId(item._id)} style={{ ...actionBtnStyle, color: "#ff4444" }}>Delete</button>
               </div>
             </div>
           ))}
         </div>
       )}
 
-
-      {/* Delete Caution Modal */}
+      {/* Delete Confirmation Modal */}
       {deleteId && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" }}>
           <div style={{ background: "#111", border: "1px solid rgba(255,68,68,0.3)", borderRadius: "12px", padding: "2rem", maxWidth: "400px", width: "90%", textAlign: "center", boxShadow: "0 10px 40px rgba(0,0,0,0.5)" }}>
@@ -127,10 +193,10 @@ export default function TimelineManager() {
   );
 }
 
-const inputStyle = {
-  width: "100%", padding: "0.75rem", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "white", outline: "none"
+const inputStyle: React.CSSProperties = {
+  width: "100%", padding: "0.75rem", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "white", outline: "none", fontSize: "1rem",
 };
 
-const actionBtnStyle = {
-  padding: "0.5rem 1rem", background: "transparent", color: "white", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", cursor: "pointer", fontSize: "0.85rem"
+const actionBtnStyle: React.CSSProperties = {
+  padding: "0.5rem 1rem", background: "transparent", color: "white", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", cursor: "pointer", fontSize: "0.85rem",
 };

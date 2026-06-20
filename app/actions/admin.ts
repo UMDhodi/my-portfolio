@@ -1,46 +1,35 @@
 "use server";
 
-import fs from "fs/promises";
-import path from "path";
 import dbConnect from "@/lib/mongodb";
 import Certification from "@/models/Certification";
+import Timeline from "@/models/Timeline";
 import Message from "@/models/Message";
 import { verifyAuth } from "./auth";
 import { revalidatePath } from "next/cache";
 import nodemailer from "nodemailer";
-
-// --- TIMELINE (JSON) ---
-const timelinePath = path.join(process.cwd(), "data", "timeline.json");
+// --- TIMELINE (MONGODB) ---
 
 export async function getTimeline() {
-  try {
-    const data = await fs.readFile(timelinePath, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
+  await dbConnect();
+  const items = await Timeline.find({}).sort({ year: 1, createdAt: 1 });
+  return JSON.parse(JSON.stringify(items));
 }
 
 export async function saveTimelineItem(formData: FormData) {
   if (!(await verifyAuth())) throw new Error("Unauthorized");
-  
-  const id = formData.get("id")?.toString() || Date.now().toString();
+  await dbConnect();
+
+  const _id = formData.get("_id")?.toString();
   const year = formData.get("year")?.toString() || "";
   const title = formData.get("title")?.toString() || "";
   const desc = formData.get("desc")?.toString() || "";
-  
-  const timeline = await getTimeline();
-  const existingIndex = timeline.findIndex((item: any) => item.id === id);
-  
-  const newItem = { id, year, title, desc };
-  
-  if (existingIndex > -1) {
-    timeline[existingIndex] = newItem;
+
+  if (_id) {
+    await Timeline.findByIdAndUpdate(_id, { year, title, desc });
   } else {
-    timeline.push(newItem);
+    await Timeline.create({ year, title, desc });
   }
-  
-  await fs.writeFile(timelinePath, JSON.stringify(timeline, null, 2));
+
   revalidatePath("/");
   revalidatePath("/admin/dashboard/timeline");
   return { success: true };
@@ -48,11 +37,8 @@ export async function saveTimelineItem(formData: FormData) {
 
 export async function deleteTimelineItem(id: string) {
   if (!(await verifyAuth())) throw new Error("Unauthorized");
-  
-  const timeline = await getTimeline();
-  const newTimeline = timeline.filter((item: any) => item.id !== id);
-  
-  await fs.writeFile(timelinePath, JSON.stringify(newTimeline, null, 2));
+  await dbConnect();
+  await Timeline.findByIdAndDelete(id);
   revalidatePath("/");
   revalidatePath("/admin/dashboard/timeline");
   return { success: true };

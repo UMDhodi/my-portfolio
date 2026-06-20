@@ -740,6 +740,10 @@ button { font-family:inherit; border:none; background:none; cursor:none; }
   color:rgba(255,255,255,0.08); transition:color 0.3s; line-height:0;
 }
 .admin-btn:hover { color:rgba(255,255,255,0.35); }
+/* Hide admin lock button on touch devices (mobile & tablet) */
+@media (max-width:1024px) {
+  .admin-btn { display:none !important; }
+}
 
 /* INVIEW BASE (fallback) */
 [data-reveal] {
@@ -753,4 +757,33 @@ button { font-family:inherit; border:none; background:none; cursor:none; }
   .bcard-featured,.bcard-sm { grid-column:auto; }
   .hero-ctas { flex-direction:column; align-items:center; }
   .footer-bottom { flex-direction:column; text-align:center; }
+  /* Stack name/email fields on mobile */
+  .form-row { grid-template-columns:1fr; }
+  /* Tighter nav on mobile */
+  #nav { padding:1rem 1.25rem; }
+  #nav.scrolled { padding:0.75rem 1.25rem; }
+  /* Hero content padding */
+  .hero-content { padding:1rem; }
+  /* About section single column already handled, ensure padding */
+  .about-section { padding:5rem 1.25rem; }
+  /* Timeline section */
+  .timeline-section { padding:5rem 1.25rem; }
+  /* Contact section */
+  .contact-section { padding:5rem 1.25rem; }
+  /* Work section */
+  .work-section { padding:5rem 1.25rem; }
+  /* Manifesto section */
+  .manifesto-section { padding:8vh 1.25rem; }
+  /* Footer grid on mobile */
+  .footer-grid { padding:3rem 1.25rem; }
+  .footer-bottom { padding:1.25rem; }
+}
+
+/* Extra small screens */
+@media(max-width:480px) {
+  .hero-eyebrow { font-size:0.65rem; letter-spacing:0.12em; }
+  .hero-sub { font-size:1rem; }
+  .cta-primary,.cta-ghost { padding:0.85rem 1.5rem; font-size:0.8rem; }
+  .contact-heading { font-size:clamp(2rem,10vw,4rem); }
+  .work-grid { grid-template-columns:1fr; }
 }
