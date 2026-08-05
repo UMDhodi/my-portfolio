@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getTimeline, getCertifications, saveMessage } from "@/app/actions/admin";
+import { getTimeline, getCertifications, saveMessage, getBlogPosts } from "@/app/actions/admin";
+import { MorphingInfinity } from "@/components/loading-ui/morphing-infinity";
 
 // Declare globals injected by CDN scripts
 declare global {
@@ -26,6 +27,9 @@ declare global {
 export default function Portfolio() {
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [certsData, setCertsData] = useState<any[]>([]);
+  const [blogData, setBlogData] = useState<any[]>([]);
+  const [loadingBlogId, setLoadingBlogId] = useState<string | null>(null);
+  const [navLoading, setNavLoading] = useState(false);
   const [formStatus, setFormStatus] = useState({ loading: false, success: false, error: "" });
 
   // ── ADMIN BUTTON ────────────────────────────────────────────────────────
@@ -36,6 +40,7 @@ export default function Portfolio() {
   useEffect(() => {
     getTimeline().then(setTimelineData);
     getCertifications().then(setCertsData);
+    getBlogPosts().then(setBlogData);
   }, []);
 
   async function handleContactSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -153,18 +158,30 @@ export default function Portfolio() {
       });
     }
 
-    // ── PRELOADER — direct setTimeout (window.load fires BEFORE useEffect in Next.js) ─────────
+    // ── PRELOADER — run heavy preloader only on initial visit, skip on return ─────────
     const pre = document.getElementById("preloader");
-    const preT1 = setTimeout(() => {
-      if (!pre) return;
-      pre.style.opacity = "0";
-      const preT2 = setTimeout(() => {
+    const hasVisited = typeof window !== "undefined" && sessionStorage.getItem("site_visited") === "true";
+    let preT1: ReturnType<typeof setTimeout> | null = null;
+
+    if (hasVisited) {
+      document.documentElement.classList.add("site-visited");
+      if (pre) {
+        pre.style.opacity = "0";
         pre.style.display = "none";
-        document.body.classList.add("is-loaded");
-      }, 800);
-      // store inner timer on element for cleanup
-      (pre as any).__t2 = preT2;
-    }, 2400);
+      }
+      document.body.classList.add("is-loaded");
+    } else if (pre) {
+      sessionStorage.setItem("site_visited", "true");
+      preT1 = setTimeout(() => {
+        if (!pre) return;
+        pre.style.opacity = "0";
+        const preT2 = setTimeout(() => {
+          pre.style.display = "none";
+          document.body.classList.add("is-loaded");
+        }, 800);
+        (pre as any).__t2 = preT2;
+      }, 2400);
+    }
 
     // ── THREE.JS HERO CANVAS ─────────────────────────────────────────────────
     const initThree = () => {
@@ -226,7 +243,7 @@ export default function Portfolio() {
 
     // ── CLEANUP ──────────────────────────────────────────────────────────────
     return () => {
-      clearTimeout(preT1);
+      if (preT1) clearTimeout(preT1);
       clearTimeout((pre as any)?.__t2);
       window.removeEventListener("scroll", onNavScroll);
       window.removeEventListener("scroll", onScroll);
@@ -258,6 +275,7 @@ export default function Portfolio() {
       ".manifesto-section", ".transition-section", ".work-card",
       ".tl-item", ".contact-section",
       ".about-section", ".work-section", ".timeline-section",
+      ".cert-preview-card", ".blog-preview-card",
       "[string~='inview']",
     ];
 
@@ -277,6 +295,18 @@ export default function Portfolio() {
 
   return (
     <>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            try {
+              if (sessionStorage.getItem("site_visited") === "true") {
+                document.documentElement.classList.add("site-visited");
+              }
+            } catch(e){}
+          `,
+        }}
+      />
+
       {/* PRELOADER — Space Mono MK. text, matches nav logo style */}
       <div id="preloader">
         <div className="pre-wordmark">
@@ -296,8 +326,54 @@ export default function Portfolio() {
       {/* NAV */}
       <nav id="nav" aria-label="Main navigation">
         <span className="nav-logo mono" aria-label="Mayank Dhodi">MK.</span>
-        <a href="#contact" className="nav-pill">Available for work</a>
+        <div className="nav-end">
+          <div className="nav-links" aria-label="Page links">
+            <a href="/" className="nav-page-link mono active-page">Home</a>
+            <a
+              href="/blog"
+              className="nav-page-link mono"
+              onClick={(e) => {
+                e.preventDefault();
+                setNavLoading(true);
+                window.location.href = "/blog";
+              }}
+            >
+              Blog
+            </a>
+            <a
+              href="/certifications"
+              className="nav-page-link mono"
+              onClick={(e) => {
+                e.preventDefault();
+                setNavLoading(true);
+                window.location.href = "/certifications";
+              }}
+            >
+              Certifications
+            </a>
+          </div>
+          <a href="#contact" className="nav-pill">Available for work</a>
+        </div>
       </nav>
+
+      {navLoading && (
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 999999,
+          background: "#080808",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "1rem"
+        }}>
+          <MorphingInfinity size={48} color="#00aaff" />
+          <span style={{ fontFamily: "var(--font-mono, monospace)", fontSize: "0.9rem", color: "rgba(255,255,255,0.75)", letterSpacing: "0.05em" }}>
+            Loading...
+          </span>
+        </div>
+      )}
 
       <main id="main">
 
@@ -450,52 +526,157 @@ export default function Portfolio() {
           </div>
         </section>
 
-        {/* CERTIFICATIONS */}
-        <section className="work-section" id="certifications" data-bg="#080808" aria-label="Professional certifications">
-          <div className="work-header">
-            <h2 string="split|inview" data-string-split="word|char">Certifications</h2>
-            <span className="work-count mono" string="inview">({certsData.length < 10 ? `0${certsData.length}` : certsData.length})</span>
+        {/* CERTIFICATIONS PREVIEW — 3 latest, horizontal */}
+        <section className="cert-preview-section" id="certifications" data-bg="#080808" aria-label="Certifications preview">
+          <div className="cert-preview-header">
+            <div>
+              <span className="cert-preview-label mono">PROOF OF WORK</span>
+              <h2 className="cert-preview-title" string="split|inview" data-string-split="word|char">Certifications</h2>
+            </div>
+            <a
+              href="/certifications"
+              className="explore-btn"
+              aria-label="Explore all certifications"
+              onClick={(e) => {
+                e.preventDefault();
+                setNavLoading(true);
+                window.location.href = "/certifications";
+              }}
+            >
+              Explore More →
+            </a>
           </div>
-          <div className="work-grid">
-            {certsData.map((p, i) => (
-              <article key={p._id || i} className={`work-card${i === 0 ? " featured" : ""}`}>
-                <div className="work-img">
-                  {p.image ? (
-                    <img src={p.image} alt={`${p.title} certification from ${p.issuer}`} loading="lazy" width="600" height="450" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : (
-                    <div className="work-img-pattern"></div>
-                  )}
-                </div>
-                <div className="work-info">
-                  <h3>{p.title}</h3>
-                  <p>{p.issuer} · {p.date}</p>
-                  {p.credId && (
-                    <span
-                      className="mono"
-                      style={{ fontSize: "0.75rem", opacity: 0.5, marginTop: "0.35rem", display: "flex", alignItems: "center", gap: "0.35rem", cursor: "pointer", transition: "opacity 0.2s", width: "fit-content" }}
-                      onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-                      onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.5")}
-                      onClick={() => navigator.clipboard.writeText(p.credId)}
-                      title="Copy full ID to clipboard"
-                    >
-                      ID: {p.credId.length > 5 ? `[${p.credId.slice(0, 4)}...${p.credId.slice(-1)}]` : p.credId}
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                      </svg>
-                    </span>
-                  )}
-                  {p.link && <a href={p.link} target="_blank" rel="noopener noreferrer" className="work-link" style={{ marginTop: "1rem", display: "inline-block" }} aria-label={`View ${p.title} certification`}>View ↗</a>}
-                </div>
-              </article>
-            ))}
+
+          {certsData.length === 0 ? (
+            <div className="cert-preview-empty mono">No certifications in the database yet.</div>
+          ) : (
+            <div className="cert-preview-grid">
+              {certsData.slice(0, 3).map((c, i) => (
+                <article
+                  key={c._id || i}
+                  className="cert-preview-card clickable"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    setNavLoading(true);
+                    window.location.href = `/certifications?cert=${c._id || c.id}`;
+                  }}
+                >
+                  <div className="cert-preview-img">
+                    {c.image ? (
+                      <img src={c.image} alt={`${c.title} from ${c.issuer}`} loading="lazy" />
+                    ) : (
+                      <div className="cert-preview-placeholder">
+                        <span>🏅</span>
+                      </div>
+                    )}
+                    <div className="cert-preview-overlay" />
+                  </div>
+                  <div className="cert-preview-body">
+                    <span className="cert-preview-issuer mono">{c.issuer}</span>
+                    <h3 className="cert-preview-name">{c.title}</h3>
+                    <div className="cert-preview-footer">
+                      <span className="cert-preview-date mono">{c.date}</span>
+                      <span className="cert-verify-btn">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        View Credential
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* BLOG PREVIEW — 4 latest posts */}
+        <section className="blog-preview-section" id="blog-preview" data-bg="#080808" aria-label="Blog preview">
+          <div className="blog-preview-header">
+            <div>
+              <span className="blog-preview-label mono">FIELD NOTES</span>
+              <h2 className="blog-preview-title" string="split|inview" data-string-split="word|char">Blog</h2>
+            </div>
+            <a
+              href="/blog"
+              className="explore-btn"
+              aria-label="Explore all blog posts"
+              onClick={(e) => {
+                e.preventDefault();
+                setNavLoading(true);
+                window.location.href = "/blog";
+              }}
+            >
+              Explore More →
+            </a>
           </div>
-          <div className="section-cta-wrap">
-            <a href="#contact" className="section-cta">Start a Project →</a>
-          </div>
+
+          {blogData.length === 0 ? (
+            <div className="blog-preview-empty mono">No posts published yet — check back soon.</div>
+          ) : (
+            <div className="blog-preview-grid">
+              {blogData.slice(0, 4).map((p, i) => {
+                const isNavigating = loadingBlogId === p._id;
+                return (
+                  <article
+                    key={p._id || i}
+                    className="blog-preview-card clickable"
+                    onClick={() => {
+                      setLoadingBlogId(p._id);
+                      window.location.href = `/blog?post=${p._id}`;
+                    }}
+                  >
+                    <div className="blog-preview-top">
+                      <span className="blog-preview-tag mono">{p.tag || "TECH"}</span>
+                      <span className="blog-preview-date mono">{p.date ? new Date(p.date).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : ""}</span>
+                    </div>
+
+                    <h3 className="blog-preview-post-title">{p.title}</h3>
+
+                    <div style={{ marginTop: "auto", paddingTop: "1rem" }}>
+                      <button
+                        type="button"
+                        className="blog-read-more-btn"
+                        disabled={isNavigating}
+                        style={{
+                          background: isNavigating ? "rgba(0,170,255,0.1)" : "rgba(255,255,255,0.06)",
+                          color: isNavigating ? "#00aaff" : "#ffffff",
+                          border: "1px solid rgba(255,255,255,0.12)",
+                          padding: "0.6rem 1.2rem",
+                          borderRadius: "100px",
+                          fontSize: "0.85rem",
+                          fontWeight: "500",
+                          cursor: "pointer",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.5rem",
+                          transition: "all 0.2s ease"
+                        }}
+                      >
+                        {isNavigating ? (
+                          <>
+                            <MorphingInfinity size={14} color="#00aaff" />
+                            <span>Loading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Read More</span>
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+                              <path d="M3 8h10M9 4l4 4-4 4" />
+                            </svg>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         {/* CONTACT — full form + social icons */}
+
         <section className="contact-section" id="contact" data-bg="#0a0a0a" aria-label="Contact form">
           <div className="contact-top">
             <span className="contact-label mono">Get in touch</span>
@@ -535,10 +716,19 @@ export default function Portfolio() {
                 {formStatus.error && <div style={{ color: "#ff4444", marginBottom: "1rem", fontSize: "0.9rem" }}>{formStatus.error}</div>}
 
                 <button type="submit" className="form-submit" disabled={formStatus.loading}>
-                  {formStatus.loading ? "Sending..." : "Send Message"}
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M3 8h10M9 4l4 4-4 4" />
-                  </svg>
+                  {formStatus.loading ? (
+                    <>
+                      <MorphingInfinity size={18} color="#00aaff" />
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Send Message</span>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M3 8h10M9 4l4 4-4 4" />
+                      </svg>
+                    </>
+                  )}
                 </button>
               </form>
             </div>
@@ -546,7 +736,7 @@ export default function Portfolio() {
             <div className="contact-info-col">
               <div className="contact-info-block">
                 <h3>Direct</h3>
-                <a href="mailto:mayankdhodi17@gmail.com" className="contact-email-link">mayankdhodi17@gmail.com</a>
+                <a href="mailto:themayankdhodi@gmail.com" className="contact-email-link">themayankdhodi@gmail.com</a>
               </div>
               <div className="contact-info-block">
                 <h3>Social</h3>
@@ -614,7 +804,7 @@ export default function Portfolio() {
             <div className="footer-col">
               <h4>Contact</h4>
               <ul>
-                <li><a href="mailto:mayankdhodi17@gmail.com" className="footer-contact-email">mayankdhodi17@gmail.com</a></li>
+                <li><a href="mailto:themayankdhodi@gmail.com" className="footer-contact-email">themayankdhodi@gmail.com</a></li>
                 <li><a href="#">India</a></li>
               </ul>
             </div>

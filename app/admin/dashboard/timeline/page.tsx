@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getTimeline, saveTimelineItem, deleteTimelineItem } from "@/app/actions/admin";
 import { useRouter } from "next/navigation";
+import { MorphingInfinity } from "@/components/loading-ui/morphing-infinity";
 
 export default function TimelineManager() {
   const [items, setItems] = useState<any[]>([]);
@@ -11,6 +12,7 @@ export default function TimelineManager() {
   const [isNew, setIsNew] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const router = useRouter();
 
   async function loadData() {
@@ -52,10 +54,17 @@ export default function TimelineManager() {
 
   async function confirmDelete() {
     if (!deleteId) return;
-    await deleteTimelineItem(deleteId);
-    setDeleteId(null);
-    await loadData();
-    router.refresh();
+    setDeleting(true);
+    try {
+      await deleteTimelineItem(deleteId);
+      setDeleteId(null);
+      await loadData();
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (
@@ -116,9 +125,16 @@ export default function TimelineManager() {
                 type="submit"
                 disabled={saving}
                 className="admin-btn-primary"
-                style={{ padding: "0.75rem 1.5rem", background: "white", color: "black", border: "none", borderRadius: "6px", fontWeight: "600", cursor: "pointer", opacity: saving ? 0.7 : 1 }}
+                style={{ padding: "0.75rem 1.5rem", background: "white", color: "black", border: "none", borderRadius: "6px", fontWeight: "600", cursor: "pointer", opacity: saving ? 0.7 : 1, display: "inline-flex", alignItems: "center", gap: "0.5rem" }}
               >
-                {saving ? "Saving..." : "Save"}
+                {saving ? (
+                  <>
+                    <MorphingInfinity size={16} color="#000000" />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  "Save"
+                )}
               </button>
               <button
                 type="button"
@@ -133,7 +149,10 @@ export default function TimelineManager() {
       )}
 
       {loading ? (
-        <p style={{ color: "var(--c-muted)" }}>Loading timeline...</p>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "4rem 0", gap: "1rem" }}>
+          <MorphingInfinity size={48} />
+          <span style={{ color: "var(--c-muted)", fontSize: "0.85rem", fontFamily: "var(--font-mono)" }}>Fetching timeline events...</span>
+        </div>
       ) : items.length === 0 ? (
         <p style={{ color: "var(--c-muted)", textAlign: "center", padding: "3rem 0" }}>
           No timeline events yet. Click &quot;+ Add Event&quot; to create one.
@@ -183,8 +202,17 @@ export default function TimelineManager() {
               This action cannot be undone. The event will be permanently removed from your timeline.
             </p>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-              <button onClick={() => setDeleteId(null)} style={{ padding: "0.75rem 1.5rem", background: "rgba(255,255,255,0.1)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500" }}>Cancel</button>
-              <button onClick={confirmDelete} style={{ padding: "0.75rem 1.5rem", background: "#ff4444", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500" }}>Yes, Delete</button>
+              <button onClick={() => setDeleteId(null)} disabled={deleting} style={{ padding: "0.75rem 1.5rem", background: "rgba(255,255,255,0.1)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500" }}>Cancel</button>
+              <button onClick={confirmDelete} disabled={deleting} style={{ padding: "0.75rem 1.5rem", background: "#ff4444", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                {deleting ? (
+                  <>
+                    <MorphingInfinity size={16} color="#ffffff" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  "Yes, Delete"
+                )}
+              </button>
             </div>
           </div>
         </div>

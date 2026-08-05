@@ -9,6 +9,7 @@ interface DashboardChartsProps {
   timeline: { year?: string; id?: string }[];
   certs: { date?: string }[];
   messages: { createdAt?: string }[];
+  blogs?: { date?: string; published?: boolean }[];
 }
 
 /* ────── HELPERS ────── */
@@ -354,20 +355,24 @@ function SparklineCard({ data, color, label, total }: { data: ChartPoint[]; colo
 }
 
 /* ────── MAIN EXPORT ────── */
-export default function DashboardCharts({ timeline, certs, messages }: DashboardChartsProps) {
+export default function DashboardCharts({ timeline = [], certs = [], messages = [], blogs = [] }: DashboardChartsProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const certsByYear = groupByYear(certs, "date");
   const timelineByYear = groupByYear(timeline, "year");
   const messagesByMonth = groupByMonth(messages);
-
-  // Compute stats for sparkline summary row
-  const totalVisitors = messages.length + certs.length + timeline.length; // Mock stat
-  const unreadMessages = messages.filter((m: any) => !m.read).length;
+  const blogsByYear = groupByYear(blogs, "date");
 
   return (
-    <div style={{ marginTop: "2rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+    <div style={{ marginTop: "2rem", display: "flex", flexDirection: "column", gap: "1.5rem" }} suppressHydrationWarning>
       
-      {/* Sparkline Summary Row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
+      {/* Sparkline Summary Row - 4 KPI Cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }} suppressHydrationWarning>
+        <SparklineCard data={blogsByYear} color="#3b82f6" label="Blog Posts KPI" total={blogs.length} />
         <SparklineCard data={certsByYear} color="#00aaff" label="Certifications Trend" total={certs.length} />
         <SparklineCard data={timelineByYear} color="#a855f7" label="Timeline Growth" total={timeline.length} />
         <SparklineCard data={messagesByMonth} color="#22c55e" label="Messages Activity" total={messages.length} />
@@ -375,14 +380,16 @@ export default function DashboardCharts({ timeline, certs, messages }: Dashboard
 
       {/* Main Charts Row */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: "1.5rem" }}>
+        <LineChart data={blogsByYear} color="#3b82f6" label="Blog Posts per Year" />
         <LineChart data={certsByYear} color="#00aaff" label="Certifications per Year" />
-        <BarChart data={timelineByYear} color="#a855f7" label="Timeline Events per Year" />
       </div>
 
-      {/* Messages Over Time - Full Width */}
-      {messagesByMonth.length > 0 && (
-        <LineChart data={messagesByMonth} color="#22c55e" label="Messages per Month" />
-      )}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: "1.5rem" }}>
+        <BarChart data={timelineByYear} color="#a855f7" label="Timeline Events per Year" />
+        {messagesByMonth.length > 0 && (
+          <LineChart data={messagesByMonth} color="#22c55e" label="Messages per Month" />
+        )}
+      </div>
     </div>
   );
 }

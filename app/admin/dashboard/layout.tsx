@@ -1,7 +1,27 @@
-import { verifyAuth, logout } from "@/app/actions/auth";
+import { verifyAuth } from "@/app/actions/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ReactNode } from "react";
+import { LogoutButton } from "./LogoutButton";
+import { ReturnToSiteButton } from "./ReturnToSiteButton";
+import { Toaster } from "@/components/ui/toaster";
+import type { Metadata } from "next";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
+};
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const isAuth = await verifyAuth();
@@ -41,6 +61,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <Link href="/admin/dashboard/timeline" style={{ padding: "0.75rem 1rem", borderRadius: "6px", color: "white", textDecoration: "none", fontSize: "0.9rem", transition: "background 0.2s", cursor: "pointer", userSelect: "auto" }} className="admin-nav-link">
             Timeline
           </Link>
+          <Link href="/admin/dashboard/blog" style={{ padding: "0.75rem 1rem", borderRadius: "6px", color: "white", textDecoration: "none", fontSize: "0.9rem", transition: "background 0.2s", cursor: "pointer", userSelect: "auto" }} className="admin-nav-link">
+            Blog
+          </Link>
           <Link href="/admin/dashboard/certifications" style={{ padding: "0.75rem 1rem", borderRadius: "6px", color: "white", textDecoration: "none", fontSize: "0.9rem", transition: "background 0.2s", cursor: "pointer", userSelect: "auto" }} className="admin-nav-link">
             Certifications
           </Link>
@@ -50,14 +73,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         </nav>
 
         <div style={{ marginTop: "auto", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1.5rem" }}>
-          <form action={logout}>
-            <button type="submit" style={{ width: "100%", padding: "0.75rem", background: "transparent", color: "#ff4444", border: "1px solid rgba(255,68,68,0.2)", borderRadius: "6px", cursor: "pointer", transition: "background 0.2s" }}>
-              Logout
-            </button>
-          </form>
-          <Link href="/" style={{ display: "block", textAlign: "center", marginTop: "1rem", color: "var(--c-muted)", fontSize: "0.85rem", textDecoration: "none" }}>
-            Return to Site ↗
-          </Link>
+          <LogoutButton />
+          <ReturnToSiteButton />
         </div>
       </aside>
 
@@ -263,16 +280,31 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
         /* ── PRIMARY BUTTONS ── */
         .admin-btn-primary {
-          transition: background 0.2s ease, transform 0.15s ease !important;
+          background: #00aaff !important;
+          color: #ffffff !important;
+          border: 1px solid #00aaff !important;
+          border-radius: 6px;
+          font-weight: 600;
+          transition: all 0.2s ease !important;
+          cursor: pointer;
         }
-        .admin-btn-primary:hover {
-          background: #e0e0e0 !important;
-          color: #000 !important;
+        .admin-btn-primary:hover:not(:disabled) {
+          background: #0088ff !important;
+          color: #ffffff !important;
+          border-color: #0088ff !important;
           transform: translateY(-1px);
+          box-shadow: 0 4px 15px rgba(0, 170, 255, 0.4);
         }
-        .admin-btn-primary:active {
-          background: #d0d0d0 !important;
+        .admin-btn-primary:active:not(:disabled) {
+          background: #0066cc !important;
           transform: translateY(0);
+        }
+        .admin-btn-primary:disabled {
+          background: #0088ff !important;
+          color: #ffffff !important;
+          border-color: #0088ff !important;
+          opacity: 0.9 !important;
+          cursor: not-allowed !important;
         }
 
         select option {
@@ -280,6 +312,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           color: #f0f0f0;
         }
       `}} />
+      <Toaster />
     </div>
   );
 }

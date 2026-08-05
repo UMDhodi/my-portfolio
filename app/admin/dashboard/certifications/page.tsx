@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { getCertifications, saveCertification, deleteCertification } from "@/app/actions/admin";
 import { useRouter } from "next/navigation";
+import { MorphingInfinity } from "@/components/loading-ui/morphing-infinity";
+import { toast } from "@/components/ui/use-toast";
 
 interface Cert {
   _id: string;
@@ -42,24 +44,44 @@ export default function CertificationsManager() {
     loadData();
   }, []);
 
+  const [submitting, setSubmitting] = useState(false);
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setSubmitting(true);
     const formData = new FormData(e.currentTarget);
-    await saveCertification(formData);
-    setIsEditing(false);
-    setIsNew(false);
-    loadData();
-    router.refresh();
+    try {
+      await saveCertification(formData);
+      setIsEditing(false);
+      setIsNew(false);
+      toast.success("Certification uploaded successfully!", "Certification details saved to database.");
+      await loadData();
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      toast.error("Upload failed", "Failed to save certification.");
+    } finally {
+      setSubmitting(false);
+    }
   }
+
+  const [deleting, setDeleting] = useState(false);
 
   async function confirmDelete() {
     if (!deleteId) return;
-    await deleteCertification(deleteId);
-    setSelectedId(null);
-    setIsEditing(false);
-    setDeleteId(null);
-    loadData();
-    router.refresh();
+    setDeleting(true);
+    try {
+      await deleteCertification(deleteId);
+      setSelectedId(null);
+      setIsEditing(false);
+      setDeleteId(null);
+      await loadData();
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDeleting(false);
+    }
   }
 
   const handleCreateNew = () => {
@@ -122,6 +144,8 @@ export default function CertificationsManager() {
             placeholder="Search by title or issuer..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            autoComplete="off"
+            spellCheck={false}
             style={{ ...inputStyle, width: "250px", padding: "0.5rem 1rem" }}
           />
           
@@ -159,7 +183,10 @@ export default function CertificationsManager() {
         {/* Left Pane: List */}
         <div style={{ flex: "0 0 350px", display: "flex", flexDirection: "column", gap: "0.5rem", overflowY: "auto", paddingRight: "0.5rem" }}>
           {loading ? (
-            <p>Loading...</p>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem 1rem", gap: "1rem" }}>
+              <MorphingInfinity size={48} />
+              <span style={{ color: "var(--c-muted)", fontSize: "0.85rem", fontFamily: "var(--font-mono)" }}>Fetching data...</span>
+            </div>
           ) : filteredItems.length === 0 ? (
             <p style={{ color: "var(--c-muted)", textAlign: "center", marginTop: "2rem" }}>No certifications found.</p>
           ) : (
@@ -209,7 +236,31 @@ export default function CertificationsManager() {
                     </>
                   )}
                   {isEditing && (
-                    <button form="certForm" type="submit" className="admin-btn-primary" style={{ ...actionBtnStyle, background: "white", color: "black", borderColor: "white", fontWeight: "600" }}>Save</button>
+                    <button 
+                      form="certForm" 
+                      type="submit" 
+                      disabled={submitting}
+                      className="admin-btn-primary" 
+                      style={{ 
+                        ...actionBtnStyle, 
+                        background: "white", 
+                        color: "black", 
+                        borderColor: "white", 
+                        fontWeight: "600",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.5rem"
+                      }}
+                    >
+                      {submitting ? (
+                        <>
+                          <MorphingInfinity size={16} color="#000000" />
+                          <span>Uploading...</span>
+                        </>
+                      ) : (
+                        "Save"
+                      )}
+                    </button>
                   )}
                 </div>
               </div>
@@ -288,8 +339,17 @@ export default function CertificationsManager() {
               This action cannot be undone. The certification will be permanently removed from your portfolio.
             </p>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-              <button onClick={() => setDeleteId(null)} style={{ padding: "0.75rem 1.5rem", background: "rgba(255,255,255,0.1)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500" }}>Cancel</button>
-              <button onClick={confirmDelete} style={{ padding: "0.75rem 1.5rem", background: "#ff4444", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500" }}>Yes, Delete</button>
+              <button onClick={() => setDeleteId(null)} disabled={deleting} style={{ padding: "0.75rem 1.5rem", background: "rgba(255,255,255,0.1)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500" }}>Cancel</button>
+              <button onClick={confirmDelete} disabled={deleting} style={{ padding: "0.75rem 1.5rem", background: "#ff4444", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                {deleting ? (
+                  <>
+                    <MorphingInfinity size={16} color="#ffffff" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  "Yes, Delete"
+                )}
+              </button>
             </div>
           </div>
         </div>

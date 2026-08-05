@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getMessages, deleteMessage, markMessageRead, replyMessage } from "@/app/actions/admin";
 import { useRouter } from "next/navigation";
+import { MorphingInfinity } from "@/components/loading-ui/morphing-infinity";
 
 export default function MessagesManager() {
   const [items, setItems] = useState<any[]>([]);
@@ -10,6 +11,7 @@ export default function MessagesManager() {
   const [activeItem, setActiveItem] = useState<any | null>(null);
   const [replyText, setReplyText] = useState("");
   const [replyStatus, setReplyStatus] = useState({ loading: false, success: false, error: "" });
+  const [deleting, setDeleting] = useState(false);
   const router = useRouter();
 
   async function loadData() {
@@ -46,14 +48,17 @@ export default function MessagesManager() {
 
   async function confirmDelete() {
     if (!deleteId) return;
+    setDeleting(true);
     try {
       await deleteMessage(deleteId);
-      loadData();
+      await loadData();
       router.refresh();
       if (activeItem?._id === deleteId) setActiveItem(null);
       setDeleteId(null);
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -146,7 +151,10 @@ export default function MessagesManager() {
           </div>
           <div style={{ flex: 1, overflowY: "auto" }}>
             {loading ? (
-              <p style={{ padding: "1rem", color: "var(--c-muted)" }}>Loading...</p>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "3rem 1rem", gap: "1rem" }}>
+                <MorphingInfinity size={40} />
+                <span style={{ color: "var(--c-muted)", fontSize: "0.85rem", fontFamily: "var(--font-mono)" }}>Fetching messages...</span>
+              </div>
             ) : items.length === 0 ? (
               <p style={{ padding: "1rem", color: "var(--c-muted)" }}>No messages.</p>
             ) : (
@@ -181,74 +189,68 @@ export default function MessagesManager() {
           {activeItem ? (
             <>
               {/* Header */}
-              <div style={{ padding: "1.5rem", borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(0,0,0,0.2)", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div style={{ padding: "1.5rem", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", alignItems: "flex-start", background: "rgba(0,0,0,0.2)" }}>
                 <div>
-                  <h2 style={{ fontSize: "1.2rem", margin: "0 0 0.25rem 0" }}>{activeItem.name || "Anonymous"}</h2>
-                  <a href={`mailto:${activeItem.email}`} style={{ color: "#00aaff", fontSize: "0.9rem", textDecoration: "none" }}>{activeItem.email}</a>
-                  <div style={{ fontSize: "0.8rem", color: "var(--c-muted)", marginTop: "0.5rem" }}>
-                    Source: {activeItem.source || "Portfolio"} • Service: {activeItem.service || "None"} • {new Date(activeItem.createdAt).toLocaleString()}
-                  </div>
+                  <h2 style={{ fontSize: "1.25rem", margin: "0 0 0.25rem 0" }}>{activeItem.name || "Anonymous"}</h2>
+                  <div style={{ fontSize: "0.9rem", color: "#00aaff" }}>{activeItem.email}</div>
+                  {activeItem.service && <div style={{ fontSize: "0.8rem", color: "var(--c-muted)", marginTop: "0.25rem" }}>Service: {activeItem.service}</div>}
                 </div>
-                <button 
-                  onClick={() => setDeleteId(activeItem._id)} 
-                  style={{ padding: "0.5rem 1rem", background: "rgba(255,68,68,0.1)", color: "#ff4444", border: "1px solid rgba(255,68,68,0.2)", borderRadius: "6px", cursor: "pointer", fontSize: "0.85rem", transition: "background 0.2s" }}
-                >
-                  Delete
-                </button>
+                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                  <span style={{ fontSize: "0.8rem", color: "var(--c-muted)" }}>{new Date(activeItem.createdAt).toLocaleString()}</span>
+                  <button onClick={() => setDeleteId(activeItem._id)} style={{ padding: "0.4rem 0.8rem", background: "rgba(255,68,68,0.1)", color: "#ff4444", border: "1px solid rgba(255,68,68,0.2)", borderRadius: "6px", cursor: "pointer", fontSize: "0.8rem" }}>
+                    Delete
+                  </button>
+                </div>
               </div>
               
-              {/* Message Body */}
-              <div style={{ padding: "1.5rem", flex: 1, overflowY: "auto", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                <div style={{ background: "rgba(0,0,0,0.3)", padding: "1.5rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)", whiteSpace: "pre-wrap", lineHeight: "1.6", color: "#f0f0f0" }}>
-                  {activeItem.message}
-                </div>
-                
-                {/* Reply UI */}
-                <div style={{ marginTop: "2rem" }}>
-                  <h3 style={{ fontSize: "1rem", marginBottom: "1rem" }}>Reply to Message</h3>
-                  <form onSubmit={handleReply}>
-                    <textarea 
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      placeholder="Write your reply here... (Will be formatted in the Niora Star HTML template)"
-                      required
+              {/* Body */}
+              <div style={{ flex: 1, padding: "1.5rem", overflowY: "auto", fontSize: "1rem", lineHeight: "1.6", whiteSpace: "pre-wrap" }}>
+                {activeItem.message}
+              </div>
+              
+              {/* Reply Section */}
+              <div style={{ padding: "1.5rem", borderTop: "1px solid rgba(255,255,255,0.05)", background: "rgba(0,0,0,0.2)" }}>
+                <h4 style={{ fontSize: "0.9rem", color: "var(--c-muted)", margin: "0 0 0.75rem 0" }}>Reply via Email</h4>
+                <form onSubmit={handleReply} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  <textarea 
+                    value={replyText} 
+                    onChange={(e) => setReplyText(e.target.value)} 
+                    placeholder="Write your custom message here (will be sent in branded template)..." 
+                    required 
+                    style={{ width: "100%", height: "80px", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "6px", color: "white", padding: "0.75rem", outline: "none", resize: "none" }}
+                  />
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <button 
+                      type="submit" 
+                      disabled={replyStatus.loading}
                       style={{ 
-                        width: "100%", 
-                        height: "150px", 
-                        padding: "1rem", 
-                        background: "rgba(0,0,0,0.3)", 
-                        border: "1px solid rgba(255,255,255,0.1)", 
-                        borderRadius: "8px", 
-                        color: "white", 
-                        fontFamily: "inherit",
-                        resize: "vertical",
-                        marginBottom: "1rem"
+                        padding: "0.5rem 1.25rem", 
+                        background: "#00aaff", 
+                        color: "black", 
+                        border: "none", 
+                        borderRadius: "6px", 
+                        cursor: "pointer", 
+                        fontWeight: "500",
+                        transition: "opacity 0.2s",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.5rem"
                       }}
-                    />
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                      <button 
-                        type="submit" 
-                        disabled={replyStatus.loading || !replyText.trim()}
-                        className="admin-btn-primary"
-                        style={{ 
-                          padding: "0.75rem 1.5rem", 
-                          background: replyStatus.loading ? "rgba(255,255,255,0.1)" : "#fff", 
-                          color: replyStatus.loading ? "white" : "black", 
-                          border: "none", 
-                          borderRadius: "6px", 
-                          cursor: replyStatus.loading || !replyText.trim() ? "not-allowed" : "pointer", 
-                          fontWeight: "500",
-                          transition: "opacity 0.2s"
-                        }}
-                      >
-                        {replyStatus.loading ? "Sending..." : "Send Reply"}
-                      </button>
-                      
-                      {replyStatus.success && <span style={{ color: "#44ff44", fontSize: "0.9rem" }}>✓ Reply sent successfully!</span>}
-                      {replyStatus.error && <span style={{ color: "#ff4444", fontSize: "0.9rem" }}>Failed to send: {replyStatus.error}. Check SMTP env vars.</span>}
-                    </div>
-                  </form>
-                </div>
+                    >
+                      {replyStatus.loading ? (
+                        <>
+                          <MorphingInfinity size={16} color="#000000" />
+                          <span>Sending...</span>
+                        </>
+                      ) : (
+                        "Send Reply"
+                      )}
+                    </button>
+                    
+                    {replyStatus.success && <span style={{ color: "#44ff44", fontSize: "0.9rem" }}>✓ Reply sent successfully!</span>}
+                    {replyStatus.error && <span style={{ color: "#ff4444", fontSize: "0.9rem" }}>Failed to send: {replyStatus.error}. Check SMTP env vars.</span>}
+                  </div>
+                </form>
               </div>
             </>
           ) : (
@@ -273,8 +275,17 @@ export default function MessagesManager() {
               This action cannot be undone. The message will be permanently removed from your dashboard.
             </p>
             <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-              <button onClick={() => setDeleteId(null)} style={{ padding: "0.75rem 1.5rem", background: "rgba(255,255,255,0.1)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500" }}>Cancel</button>
-              <button onClick={confirmDelete} style={{ padding: "0.75rem 1.5rem", background: "#ff4444", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500" }}>Yes, Delete</button>
+              <button onClick={() => setDeleteId(null)} disabled={deleting} style={{ padding: "0.75rem 1.5rem", background: "rgba(255,255,255,0.1)", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500" }}>Cancel</button>
+              <button onClick={confirmDelete} disabled={deleting} style={{ padding: "0.75rem 1.5rem", background: "#ff4444", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500", display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                {deleting ? (
+                  <>
+                    <MorphingInfinity size={16} color="#ffffff" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  "Yes, Delete"
+                )}
+              </button>
             </div>
           </div>
         </div>

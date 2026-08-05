@@ -2,11 +2,76 @@
 
 import dbConnect from "@/lib/mongodb";
 import Certification from "@/models/Certification";
+import Blog from "@/models/Blog";
 import Timeline from "@/models/Timeline";
 import Message from "@/models/Message";
 import { verifyAuth } from "./auth";
 import { revalidatePath } from "next/cache";
 import nodemailer from "nodemailer";
+// --- BLOG POSTS (MONGODB) ---
+
+export async function getBlogPosts() {
+  try {
+    await dbConnect();
+    const posts = await Blog.find({ published: true }).sort({ date: -1, createdAt: -1 });
+    return JSON.parse(JSON.stringify(posts));
+  } catch {
+    // Cluster not found or connection error — return empty so UI shows fallback
+    return [];
+  }
+}
+
+export async function saveBlogPost(formData: FormData) {
+  if (!(await verifyAuth())) throw new Error("Unauthorized");
+  await dbConnect();
+
+  const _id = formData.get("_id")?.toString();
+  const publishedVal = formData.get("published");
+  
+  const rawExcerpt = formData.get("excerpt")?.toString() || "";
+  const plainExcerptText = rawExcerpt.replace(/<[^>]*>/g, "").trim();
+
+  // Validate that excerpt is not empty or just whitespace / empty HTML tags
+  if (!rawExcerpt.trim() || !plainExcerptText) {
+    return { success: false, error: "Please provide content / excerpt for the blog post." };
+  }
+
+  const data = {
+    title: formData.get("title")?.toString()?.trim() || "Untitled Post",
+    date: formData.get("date")?.toString() || new Date().toISOString().split("T")[0],
+    tag: formData.get("tag")?.toString()?.trim() || "Tech",
+    stack: formData.get("stack")?.toString()?.trim() || "",
+    excerpt: rawExcerpt.trim(),
+    slug: formData.get("slug")?.toString()?.trim() || "",
+    link: formData.get("link")?.toString()?.trim() || "",
+    published: publishedVal === "true" || publishedVal === "on" || publishedVal === "1" || publishedVal === null ? true : false,
+  };
+
+  try {
+    if (_id) {
+      await Blog.findByIdAndUpdate(_id, data);
+    } else {
+      await Blog.create(data);
+    }
+
+    revalidatePath("/");
+    revalidatePath("/blog");
+    revalidatePath("/admin/dashboard/blog");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to save blog post." };
+  }
+}
+
+export async function deleteBlogPost(id: string) {
+  if (!(await verifyAuth())) throw new Error("Unauthorized");
+  await dbConnect();
+  await Blog.findByIdAndDelete(id);
+  revalidatePath("/");
+  revalidatePath("/blog");
+  return { success: true };
+}
+
 // --- TIMELINE (MONGODB) ---
 
 export async function getTimeline() {
@@ -47,9 +112,13 @@ export async function deleteTimelineItem(id: string) {
 // --- CERTIFICATIONS (MONGODB) ---
 
 export async function getCertifications() {
-  await dbConnect();
-  const certs = await Certification.find({}).sort({ createdAt: -1 });
-  return JSON.parse(JSON.stringify(certs));
+  try {
+    await dbConnect();
+    const certs = await Certification.find({}).sort({ createdAt: -1 });
+    return JSON.parse(JSON.stringify(certs));
+  } catch {
+    return [];
+  }
 }
 
 export async function saveCertification(formData: FormData) {
@@ -108,17 +177,39 @@ export async function getMessages() {
   return JSON.parse(JSON.stringify(messages));
 }
 
+function sanitizeText(str: unknown, maxLength: number): string {
+  if (typeof str !== "string") return "";
+  return str
+    .trim()
+    .substring(0, maxLength)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
 export async function saveMessage(formData: FormData) {
   // Public route, no auth check needed to send a message
   await dbConnect();
+
+  const name = sanitizeText(formData.get("name"), 100) || "Anonymous";
+  const email = sanitizeText(formData.get("email"), 150);
+  const message = sanitizeText(formData.get("message"), 5000);
+  const service = sanitizeText(formData.get("service"), 100);
+  const source = sanitizeText(formData.get("source"), 100) || "Portfolio";
+
+  if (!email || !message) {
+    return { success: false, error: "Email and message are required." };
+  }
   
   await Message.create({
     id: Date.now().toString(),
-    name: formData.get("name")?.toString() || "Anonymous",
-    email: formData.get("email")?.toString(),
-    message: formData.get("message")?.toString(),
-    service: formData.get("service")?.toString() || "",
-    source: formData.get("source")?.toString() || "Portfolio",
+    name,
+    email,
+    message,
+    service,
+    source,
     read: false,
   });
   
