@@ -31,6 +31,7 @@ export default function Blog({ initialPosts = [] }: BlogProps) {
   const [blogSort, setBlogSort] = useState("newest");
   const [activePost, setActivePost] = useState<Post | null>(null);
   const [navigatingHome, setNavigatingHome] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Read URL search param ?post=id to automatically expand post if navigated from Home page
   useEffect(() => {
@@ -344,7 +345,7 @@ export default function Blog({ initialPosts = [] }: BlogProps) {
         >
           MK.
         </a>
-        <div className="nav-end">
+        <div className="nav-end desktop-nav">
           <div className="nav-links">
             <a
               href="/"
@@ -386,7 +387,84 @@ export default function Blog({ initialPosts = [] }: BlogProps) {
           </div>
           <a href="/#contact" className="nav-pill">Available for work</a>
         </div>
+
+        {/* MOBILE BURGER TRIGGER BUTTON */}
+        <button
+          type="button"
+          className={`mobile-menu-trigger${mobileMenuOpen ? " active" : ""}`}
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle Navigation Menu"
+        >
+          <span className="burger-bar bar-1"></span>
+          <span className="burger-bar bar-2"></span>
+        </button>
       </nav>
+
+      {/* MOBILE DRAWER OVERLAY */}
+      <div className={`mobile-nav-drawer${mobileMenuOpen ? " open" : ""}`}>
+        <div className="mobile-nav-inner">
+          <div className="mobile-nav-header">
+            <span className="mono" style={{ fontSize: "0.75rem", color: "var(--c-accent)", letterSpacing: "0.15em" }}>NAVIGATION</span>
+          </div>
+
+          <div className="mobile-nav-items">
+            <a
+              href="/"
+              className="mobile-nav-item mono"
+              onClick={(e) => {
+                e.preventDefault();
+                setMobileMenuOpen(false);
+                setNavigatingHome(true);
+                window.location.href = "/";
+              }}
+            >
+              <span className="item-num">01</span>
+              <span>HOME</span>
+            </a>
+
+            <a
+              href="/blog"
+              className="mobile-nav-item mono active"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (activePost) setActivePost(null);
+              }}
+            >
+              <span className="item-num">02</span>
+              <span>BLOG</span>
+            </a>
+
+            <a
+              href="/certifications"
+              className="mobile-nav-item mono"
+              onClick={(e) => {
+                e.preventDefault();
+                setMobileMenuOpen(false);
+                setNavigatingHome(true);
+                window.location.href = "/certifications";
+              }}
+            >
+              <span className="item-num">03</span>
+              <span>CERTIFICATIONS</span>
+            </a>
+
+            <a
+              href="/#contact"
+              className="mobile-nav-item mono"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <span className="item-num">04</span>
+              <span>CONTACT</span>
+            </a>
+          </div>
+
+          <div className="mobile-nav-footer">
+            <span className="mono" style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
+              ● Available for projects
+            </span>
+          </div>
+        </div>
+      </div>
 
       {navigatingHome && (
         <div style={{
