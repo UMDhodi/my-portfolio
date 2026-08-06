@@ -359,6 +359,17 @@ export default function Blog({ initialPosts = [] }: BlogProps) {
               Home
             </a>
             <a
+              href="/projects"
+              className="nav-page-link mono"
+              onClick={(e) => {
+                e.preventDefault();
+                setNavigatingHome(true);
+                window.location.href = "/projects";
+              }}
+            >
+              Projects
+            </a>
+            <a
               href="/blog"
               className="nav-page-link mono active-page"
               onClick={(e) => {
@@ -423,6 +434,20 @@ export default function Blog({ initialPosts = [] }: BlogProps) {
             </a>
 
             <a
+              href="/projects"
+              className="mobile-nav-item mono"
+              onClick={(e) => {
+                e.preventDefault();
+                setMobileMenuOpen(false);
+                setNavigatingHome(true);
+                window.location.href = "/projects";
+              }}
+            >
+              <span className="item-num">02</span>
+              <span>PROJECTS</span>
+            </a>
+
+            <a
               href="/blog"
               className="mobile-nav-item mono active"
               onClick={() => {
@@ -430,7 +455,7 @@ export default function Blog({ initialPosts = [] }: BlogProps) {
                 if (activePost) setActivePost(null);
               }}
             >
-              <span className="item-num">02</span>
+              <span className="item-num">03</span>
               <span>BLOG</span>
             </a>
 
@@ -444,7 +469,7 @@ export default function Blog({ initialPosts = [] }: BlogProps) {
                 window.location.href = "/certifications";
               }}
             >
-              <span className="item-num">03</span>
+              <span className="item-num">04</span>
               <span>CERTIFICATIONS</span>
             </a>
 
@@ -453,7 +478,7 @@ export default function Blog({ initialPosts = [] }: BlogProps) {
               className="mobile-nav-item mono"
               onClick={() => setMobileMenuOpen(false)}
             >
-              <span className="item-num">04</span>
+              <span className="item-num">05</span>
               <span>CONTACT</span>
             </a>
           </div>

@@ -3,6 +3,7 @@
 import dbConnect from "@/lib/mongodb";
 import Certification from "@/models/Certification";
 import Blog from "@/models/Blog";
+import Project from "@/models/Project";
 import Timeline from "@/models/Timeline";
 import Message from "@/models/Message";
 import { verifyAuth } from "./auth";
@@ -258,4 +259,71 @@ export async function replyMessage(to: string, subject: string, htmlContent: str
     console.error("Email send error:", error);
     return { success: false, error: error.message };
   }
+}
+
+// --- PROJECTS (MONGODB) ---
+
+export async function getProjects() {
+  try {
+    await dbConnect();
+    const projects = await Project.find({}).sort({ createdAt: -1 });
+    return JSON.parse(JSON.stringify(projects));
+  } catch {
+    return [];
+  }
+}
+
+export async function saveProject(formData: FormData) {
+  if (!(await verifyAuth())) throw new Error("Unauthorized");
+  await dbConnect();
+
+  const _id = formData.get("_id")?.toString();
+
+  let imagePath = formData.get("image")?.toString() || "";
+  const imageFile = formData.get("imageFile") as File | null;
+
+  if (imageFile && imageFile.size > 0) {
+    const bytes = await imageFile.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    imagePath = `data:${imageFile.type};base64,${buffer.toString("base64")}`;
+  }
+
+  const featuredVal = formData.get("featured");
+
+  const data = {
+    title: formData.get("title")?.toString()?.trim() || "Untitled Project",
+    description: formData.get("description")?.toString()?.trim() || "",
+    image: imagePath,
+    tags: formData.get("tags")?.toString()?.trim() || "",
+    demoLink: formData.get("demoLink")?.toString()?.trim() || "",
+    githubLink: formData.get("githubLink")?.toString()?.trim() || "",
+    category: formData.get("category")?.toString()?.trim() || "Web",
+    date: formData.get("date")?.toString()?.trim() || new Date().toISOString().split("T")[0],
+    featured: featuredVal === "true" || featuredVal === "on" || featuredVal === "1" || featuredVal === null ? true : false,
+  };
+
+  try {
+    if (_id) {
+      await Project.findByIdAndUpdate(_id, data);
+    } else {
+      await Project.create(data);
+    }
+
+    revalidatePath("/");
+    revalidatePath("/projects");
+    revalidatePath("/admin/dashboard/projects");
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to save project." };
+  }
+}
+
+export async function deleteProject(id: string) {
+  if (!(await verifyAuth())) throw new Error("Unauthorized");
+  await dbConnect();
+  await Project.findByIdAndDelete(id);
+  revalidatePath("/");
+  revalidatePath("/projects");
+  revalidatePath("/admin/dashboard/projects");
+  return { success: true };
 }

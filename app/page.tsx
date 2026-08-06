@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { getTimeline, getCertifications, saveMessage, getBlogPosts } from "@/app/actions/admin";
+import { getTimeline, getCertifications, saveMessage, getBlogPosts, getProjects } from "@/app/actions/admin";
 import { MorphingInfinity } from "@/components/loading-ui/morphing-infinity";
 
 // Declare globals injected by CDN scripts
@@ -28,6 +28,7 @@ export default function Portfolio() {
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const [certsData, setCertsData] = useState<any[]>([]);
   const [blogData, setBlogData] = useState<any[]>([]);
+  const [projectsData, setProjectsData] = useState<any[]>([]);
   const [loadingBlogId, setLoadingBlogId] = useState<string | null>(null);
   const [navLoading, setNavLoading] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -42,6 +43,7 @@ export default function Portfolio() {
     getTimeline().then(setTimelineData);
     getCertifications().then(setCertsData);
     getBlogPosts().then(setBlogData);
+    getProjects().then(setProjectsData);
   }, []);
 
   async function handleContactSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -333,6 +335,17 @@ export default function Portfolio() {
           <div className="nav-links" aria-label="Page links">
             <a href="/" className="nav-page-link mono active-page">Home</a>
             <a
+              href="/projects"
+              className="nav-page-link mono"
+              onClick={(e) => {
+                e.preventDefault();
+                setNavLoading(true);
+                window.location.href = "/projects";
+              }}
+            >
+              Projects
+            </a>
+            <a
               href="/blog"
               className="nav-page-link mono"
               onClick={(e) => {
@@ -388,6 +401,20 @@ export default function Portfolio() {
             </a>
 
             <a
+              href="/projects"
+              className="mobile-nav-item mono"
+              onClick={(e) => {
+                e.preventDefault();
+                setMobileMenuOpen(false);
+                setNavLoading(true);
+                window.location.href = "/projects";
+              }}
+            >
+              <span className="item-num">02</span>
+              <span>PROJECTS</span>
+            </a>
+
+            <a
               href="/blog"
               className="mobile-nav-item mono"
               onClick={(e) => {
@@ -397,7 +424,7 @@ export default function Portfolio() {
                 window.location.href = "/blog";
               }}
             >
-              <span className="item-num">02</span>
+              <span className="item-num">03</span>
               <span>BLOG</span>
             </a>
 
@@ -411,7 +438,7 @@ export default function Portfolio() {
                 window.location.href = "/certifications";
               }}
             >
-              <span className="item-num">03</span>
+              <span className="item-num">04</span>
               <span>CERTIFICATIONS</span>
             </a>
 
@@ -420,7 +447,7 @@ export default function Portfolio() {
               className="mobile-nav-item mono"
               onClick={() => setMobileMenuOpen(false)}
             >
-              <span className="item-num">04</span>
+              <span className="item-num">05</span>
               <span>CONTACT</span>
             </a>
           </div>
@@ -744,6 +771,132 @@ export default function Portfolio() {
                           </>
                         )}
                       </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* PROJECTS PREVIEW — Top 4 projects */}
+        <section className="projects-preview-section" id="projects-preview" data-bg="#080808" aria-label="Projects preview" style={{ padding: "6rem 2rem", maxWidth: "1400px", margin: "0 auto" }}>
+          <div className="blog-preview-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "3rem", flexWrap: "wrap", gap: "1rem" }}>
+            <div>
+              <span className="blog-preview-label mono" style={{ color: "var(--c-accent, #00aaff)", fontSize: "0.75rem", letterSpacing: "0.15em" }}>PROOF OF BUILD</span>
+              <h2 className="blog-preview-title" string="split|inview" data-string-split="word|char" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 700, margin: "0.25rem 0 0 0" }}>Featured Projects</h2>
+            </div>
+            <a
+              href="/projects"
+              className="explore-btn"
+              aria-label="Explore all projects"
+              onClick={(e) => {
+                e.preventDefault();
+                setNavLoading(true);
+                window.location.href = "/projects";
+              }}
+            >
+              Explore More →
+            </a>
+          </div>
+
+          {projectsData.length === 0 ? (
+            <div className="blog-preview-empty mono" style={{ color: "rgba(255,255,255,0.4)", textAlign: "center", padding: "3rem" }}>No projects added yet — check back soon.</div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "2rem" }}>
+              {projectsData.slice(0, 4).map((p, i) => {
+                const tagList = p.tags ? p.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : [];
+                return (
+                  <article
+                    key={p._id || i}
+                    style={{
+                      background: "rgba(255,255,255,0.02)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: "16px",
+                      overflow: "hidden",
+                      display: "flex",
+                      flexDirection: "column",
+                      transition: "transform 0.3s cubic-bezier(0.16,1,0.3,1), border-color 0.3s ease, box-shadow 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-6px)";
+                      e.currentTarget.style.borderColor = "rgba(0,170,255,0.35)";
+                      e.currentTarget.style.boxShadow = "0 12px 30px rgba(0,0,0,0.5), 0 0 20px rgba(0,170,255,0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", background: "#111", overflow: "hidden" }}>
+                      {p.image ? (
+                        <img src={p.image} alt={p.title} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      ) : (
+                        <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #121212 0%, #1a1a1a 100%)", color: "var(--c-accent, #00aaff)", fontSize: "2.5rem" }}>
+                          💻
+                        </div>
+                      )}
+                      <div style={{ position: "absolute", top: "0.85rem", left: "0.85rem" }}>
+                        <span className="mono" style={{ background: "rgba(8,8,8,0.85)", backdropFilter: "blur(8px)", color: "var(--c-accent, #00aaff)", padding: "0.25rem 0.65rem", borderRadius: "100px", fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.08em", border: "1px solid rgba(0,170,255,0.3)" }}>
+                          {p.category || "Web"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ padding: "1.5rem", display: "flex", flexDirection: "column", flex: 1 }}>
+                      <h3 style={{ fontSize: "1.25rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#fff" }}>{p.title}</h3>
+                      <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.88rem", lineHeight: 1.6, margin: "0 0 1.25rem 0", flex: 1 }}>{p.description}</p>
+
+                      {tagList.length > 0 && (
+                        <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1.25rem" }}>
+                          {tagList.map((tag: string, idx: number) => (
+                            <span key={idx} className="mono" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.8)", padding: "0.2rem 0.55rem", borderRadius: "6px", fontSize: "0.7rem" }}>
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div style={{ display: "flex", gap: "0.75rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                        {p.demoLink ? (
+                          <a
+                            href={p.demoLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mono"
+                            style={{
+                              flex: 1,
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "0.4rem",
+                              background: "#00aaff",
+                              color: "#000",
+                              fontWeight: 700,
+                              padding: "0.6rem 1rem",
+                              borderRadius: "8px",
+                              fontSize: "0.78rem",
+                              textDecoration: "none",
+                              textTransform: "uppercase",
+                              transition: "all 0.2s ease"
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = "#0088cc"; e.currentTarget.style.color = "#ffffff"; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = "#00aaff"; e.currentTarget.style.color = "#000000"; }}
+                          >
+                            <span>Live Demo</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                              <polyline points="15 3 21 3 21 9" />
+                              <line x1="10" y1="14" x2="21" y2="3" />
+                            </svg>
+                          </a>
+                        ) : (
+                          <span className="mono" style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.3)", padding: "0.6rem 1rem", borderRadius: "8px", fontSize: "0.78rem" }}>
+                            Internal Build
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </article>
                 );

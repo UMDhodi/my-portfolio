@@ -10,6 +10,7 @@ interface DashboardChartsProps {
   certs: { date?: string }[];
   messages: { createdAt?: string }[];
   blogs?: { date?: string; published?: boolean }[];
+  projects?: { date?: string }[];
 }
 
 /* ────── HELPERS ────── */
@@ -323,24 +324,28 @@ function SparklineCard({ data, color, label, total }: { data: ChartPoint[]; colo
   return (
     <div style={{
       background: "rgba(255,255,255,0.02)",
-      border: "1px solid rgba(255,255,255,0.05)",
+      border: "1px solid rgba(255,255,255,0.06)",
       borderRadius: 12,
-      padding: "1rem 1.25rem",
+      padding: "1.25rem 1.25rem",
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
       gap: "1rem",
       minWidth: 0,
+      position: "relative",
+      overflow: "hidden"
     }}>
-      <div>
-        <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 4 }}>{label}</div>
-        <div style={{ fontSize: "1.5rem", fontWeight: 600, color }}>{total}</div>
+      <div style={{ zIndex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: "0.72rem", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {label}
+        </div>
+        <div style={{ fontSize: "1.65rem", fontWeight: 700, color, lineHeight: 1 }}>{total}</div>
       </div>
       {points.length > 1 && (
-        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 120, height: 40, flexShrink: 0 }}>
+        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 85, height: 36, flexShrink: 0, overflow: "hidden" }}>
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity="0.25" />
+              <stop offset="0%" stopColor={color} stopOpacity="0.3" />
               <stop offset="100%" stopColor={color} stopOpacity="0" />
             </linearGradient>
           </defs>
@@ -355,7 +360,7 @@ function SparklineCard({ data, color, label, total }: { data: ChartPoint[]; colo
 }
 
 /* ────── MAIN EXPORT ────── */
-export default function DashboardCharts({ timeline = [], certs = [], messages = [], blogs = [] }: DashboardChartsProps) {
+export default function DashboardCharts({ timeline = [], certs = [], messages = [], blogs = [], projects = [] }: DashboardChartsProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -366,12 +371,14 @@ export default function DashboardCharts({ timeline = [], certs = [], messages = 
   const timelineByYear = groupByYear(timeline, "year");
   const messagesByMonth = groupByMonth(messages);
   const blogsByYear = groupByYear(blogs, "date");
+  const projectsByYear = groupByYear(projects, "date");
 
   return (
-    <div style={{ marginTop: "2rem", display: "flex", flexDirection: "column", gap: "1.5rem" }} suppressHydrationWarning>
+    <div style={{ marginTop: "2rem", display: "flex", flexDirection: "column", gap: "1.75rem" }} suppressHydrationWarning>
       
-      {/* Sparkline Summary Row - 4 KPI Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }} suppressHydrationWarning>
+      {/* Sparkline Summary Row - KPI Cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: "1.25rem" }} suppressHydrationWarning>
+        <SparklineCard data={projectsByYear} color="#eab308" label="Projects KPI" total={projects.length} />
         <SparklineCard data={blogsByYear} color="#3b82f6" label="Blog Posts KPI" total={blogs.length} />
         <SparklineCard data={certsByYear} color="#00aaff" label="Certifications Trend" total={certs.length} />
         <SparklineCard data={timelineByYear} color="#a855f7" label="Timeline Growth" total={timeline.length} />
@@ -379,12 +386,13 @@ export default function DashboardCharts({ timeline = [], certs = [], messages = 
       </div>
 
       {/* Main Charts Row */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: "1.5rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
+        <LineChart data={projectsByYear} color="#eab308" label="Projects per Year" />
         <LineChart data={blogsByYear} color="#3b82f6" label="Blog Posts per Year" />
         <LineChart data={certsByYear} color="#00aaff" label="Certifications per Year" />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(380px, 1fr))", gap: "1.5rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "1.5rem" }}>
         <BarChart data={timelineByYear} color="#a855f7" label="Timeline Events per Year" />
         {messagesByMonth.length > 0 && (
           <LineChart data={messagesByMonth} color="#22c55e" label="Messages per Month" />

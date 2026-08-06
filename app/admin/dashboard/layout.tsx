@@ -61,6 +61,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <Link href="/admin/dashboard/timeline" style={{ padding: "0.75rem 1rem", borderRadius: "6px", color: "white", textDecoration: "none", fontSize: "0.9rem", transition: "background 0.2s", cursor: "pointer", userSelect: "auto" }} className="admin-nav-link">
             Timeline
           </Link>
+          <Link href="/admin/dashboard/projects" style={{ padding: "0.75rem 1rem", borderRadius: "6px", color: "white", textDecoration: "none", fontSize: "0.9rem", transition: "background 0.2s", cursor: "pointer", userSelect: "auto" }} className="admin-nav-link">
+            Projects
+          </Link>
           <Link href="/admin/dashboard/blog" style={{ padding: "0.75rem 1rem", borderRadius: "6px", color: "white", textDecoration: "none", fontSize: "0.9rem", transition: "background 0.2s", cursor: "pointer", userSelect: "auto" }} className="admin-nav-link">
             Blog
           </Link>

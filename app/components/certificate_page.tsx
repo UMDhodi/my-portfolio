@@ -376,6 +376,17 @@ export default function CertificationsAchievements({ initialCerts = [] }: Certif
               Home
             </a>
             <a
+              href="/projects"
+              className="nav-page-link mono"
+              onClick={(e) => {
+                e.preventDefault();
+                setNavigatingHome(true);
+                window.location.href = "/projects";
+              }}
+            >
+              Projects
+            </a>
+            <a
               href="/blog"
               className="nav-page-link mono"
               onClick={(e) => {
@@ -440,6 +451,20 @@ export default function CertificationsAchievements({ initialCerts = [] }: Certif
             </a>
 
             <a
+              href="/projects"
+              className="mobile-nav-item mono"
+              onClick={(e) => {
+                e.preventDefault();
+                setMobileMenuOpen(false);
+                setNavigatingHome(true);
+                window.location.href = "/projects";
+              }}
+            >
+              <span className="item-num">02</span>
+              <span>PROJECTS</span>
+            </a>
+
+            <a
               href="/blog"
               className="mobile-nav-item mono"
               onClick={(e) => {
@@ -449,7 +474,7 @@ export default function CertificationsAchievements({ initialCerts = [] }: Certif
                 window.location.href = "/blog";
               }}
             >
-              <span className="item-num">02</span>
+              <span className="item-num">03</span>
               <span>BLOG</span>
             </a>
 
@@ -461,7 +486,7 @@ export default function CertificationsAchievements({ initialCerts = [] }: Certif
                 if (activeCert) setActiveCert(null);
               }}
             >
-              <span className="item-num">03</span>
+              <span className="item-num">04</span>
               <span>CERTIFICATIONS</span>
             </a>
 
@@ -470,7 +495,7 @@ export default function CertificationsAchievements({ initialCerts = [] }: Certif
               className="mobile-nav-item mono"
               onClick={() => setMobileMenuOpen(false)}
             >
-              <span className="item-num">04</span>
+              <span className="item-num">05</span>
               <span>CONTACT</span>
             </a>
           </div>
