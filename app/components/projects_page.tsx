@@ -458,29 +458,40 @@ export default function ProjectsPageComponent({ initialProjects = [] }: Projects
                     </div>
 
                     {/* Card Body */}
-                    <div style={{ padding: "1.5rem", display: "flex", flexDirection: "column", flex: 1 }}>
-                      <h3 style={{ fontSize: "1.3rem", fontWeight: 700, margin: "0 0 0.65rem 0", color: "#fff", lineHeight: 1.3 }}>
+                    <div style={{ padding: "1.25rem", display: "flex", flexDirection: "column", flex: 1 }}>
+                      <h3 style={{ fontSize: "1.15rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#fff", lineHeight: 1.35 }}>
                         {p.title}
                       </h3>
 
-                      <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.88rem", lineHeight: 1.6, margin: "0 0 1.25rem 0", flex: 1 }}>
+                      <p style={{
+                        color: "rgba(255,255,255,0.65)",
+                        fontSize: "0.85rem",
+                        lineHeight: 1.5,
+                        margin: "0 0 1rem 0",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        minHeight: "2.55rem"
+                      }}>
                         {p.description}
                       </p>
 
                       {/* Tech Stack Tag Pills */}
                       {tagList.length > 0 && (
-                        <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
-                          {tagList.map((tag, idx) => (
+                        <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap", marginBottom: "1rem" }}>
+                          {tagList.slice(0, 4).map((tag, idx) => (
                             <span
                               key={idx}
                               className="mono"
                               style={{
                                 background: "rgba(255,255,255,0.04)",
                                 border: "1px solid rgba(255,255,255,0.08)",
-                                color: "rgba(255,255,255,0.8)",
-                                padding: "0.2rem 0.55rem",
-                                borderRadius: "6px",
-                                fontSize: "0.7rem"
+                                color: "rgba(255,255,255,0.75)",
+                                padding: "0.15rem 0.5rem",
+                                borderRadius: "4px",
+                                fontSize: "0.68rem"
                               }}
                             >
                               {tag}
@@ -489,8 +500,8 @@ export default function ProjectsPageComponent({ initialProjects = [] }: Projects
                         </div>
                       )}
 
-                      {/* Card Footer Buttons */}
-                      <div style={{ display: "flex", gap: "0.75rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                      {/* Action Links Bar */}
+                      <div style={{ display: "flex", gap: "0.75rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.06)", alignItems: "center" }}>
                         {p.demoLink ? (
                           <a
                             href={p.demoLink}
@@ -506,40 +517,26 @@ export default function ProjectsPageComponent({ initialProjects = [] }: Projects
                               background: "#00aaff",
                               color: "#000",
                               fontWeight: 700,
-                              padding: "0.6rem 1rem",
+                              padding: "0.55rem 0.85rem",
                               borderRadius: "8px",
-                              fontSize: "0.78rem",
+                              fontSize: "0.75rem",
                               textDecoration: "none",
                               textTransform: "uppercase",
-                              letterSpacing: "0.05em",
                               transition: "all 0.2s ease"
                             }}
                             onMouseEnter={(e) => { e.currentTarget.style.background = "#0088cc"; e.currentTarget.style.color = "#ffffff"; }}
                             onMouseLeave={(e) => { e.currentTarget.style.background = "#00aaff"; e.currentTarget.style.color = "#000000"; }}
                           >
                             <span>Live Demo</span>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                               <polyline points="15 3 21 3 21 9" />
                               <line x1="10" y1="14" x2="21" y2="3" />
                             </svg>
                           </a>
                         ) : (
-                          <span
-                            className="mono"
-                            style={{
-                              flex: 1,
-                              display: "inline-flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              background: "rgba(255,255,255,0.04)",
-                              color: "rgba(255,255,255,0.3)",
-                              padding: "0.6rem 1rem",
-                              borderRadius: "8px",
-                              fontSize: "0.78rem"
-                            }}
-                          >
-                            Internal / In Prod
+                          <span className="mono" style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.3)", padding: "0.55rem 0.85rem", borderRadius: "8px", fontSize: "0.75rem" }}>
+                            Internal Build
                           </span>
                         )}
 
@@ -548,24 +545,24 @@ export default function ProjectsPageComponent({ initialProjects = [] }: Projects
                             href={p.githubLink}
                             target="_blank"
                             rel="noopener noreferrer"
+                            title="GitHub Repository"
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              background: "rgba(255,255,255,0.06)",
-                              border: "1px solid rgba(255,255,255,0.12)",
-                              color: "#fff",
-                              padding: "0.6rem 0.85rem",
+                              width: "32px",
+                              height: "32px",
                               borderRadius: "8px",
-                              textDecoration: "none",
-                              transition: "background 0.2s ease"
+                              background: "rgba(255,255,255,0.05)",
+                              border: "1px solid rgba(255,255,255,0.1)",
+                              color: "#fff",
+                              transition: "all 0.2s ease"
                             }}
-                            aria-label="View Source Code on GitHub"
-                            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(0,170,255,0.2)"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; }}
+                            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#00aaff"; e.currentTarget.style.color = "#00aaff"; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#fff"; }}
                           >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                              <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
                             </svg>
                           </a>
                         )}

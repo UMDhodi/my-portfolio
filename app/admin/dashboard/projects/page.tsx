@@ -315,10 +315,24 @@ export default function ProjectsManager() {
                         alignItems: "center",
                         gap: "0.5rem"
                       }}
+                      onMouseEnter={(e) => {
+                        if (!submitting) {
+                          e.currentTarget.style.background = "#0088cc";
+                          e.currentTarget.style.color = "#ffffff";
+                          e.currentTarget.style.borderColor = "#0088cc";
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!submitting) {
+                          e.currentTarget.style.background = "#00aaff";
+                          e.currentTarget.style.color = "#000000";
+                          e.currentTarget.style.borderColor = "#00aaff";
+                        }
+                      }}
                     >
                       {submitting ? (
                         <>
-                          <MorphingInfinity size={16} color="#000000" />
+                          <MorphingInfinity size={16} color="#ffffff" />
                           <span>Uploading...</span>
                         </>
                       ) : (

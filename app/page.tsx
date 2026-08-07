@@ -844,21 +844,10 @@ export default function Portfolio() {
                       </div>
                     </div>
 
-                    <div style={{ padding: "1.5rem", display: "flex", flexDirection: "column", flex: 1 }}>
-                      <h3 style={{ fontSize: "1.25rem", fontWeight: 700, margin: "0 0 0.5rem 0", color: "#fff" }}>{p.title}</h3>
-                      <p style={{ color: "rgba(255,255,255,0.65)", fontSize: "0.88rem", lineHeight: 1.6, margin: "0 0 1.25rem 0", flex: 1 }}>{p.description}</p>
+                    <div style={{ padding: "1.25rem", display: "flex", flexDirection: "column", flex: 1, gap: "1rem" }}>
+                      <h3 style={{ fontSize: "1.15rem", fontWeight: 700, margin: 0, color: "#fff", lineHeight: 1.35 }}>{p.title}</h3>
 
-                      {tagList.length > 0 && (
-                        <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "1.25rem" }}>
-                          {tagList.map((tag: string, idx: number) => (
-                            <span key={idx} className="mono" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.8)", padding: "0.2rem 0.55rem", borderRadius: "6px", fontSize: "0.7rem" }}>
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      <div style={{ display: "flex", gap: "0.75rem", marginTop: "auto", paddingTop: "0.75rem", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                      <div style={{ marginTop: "auto", paddingTop: "0.25rem" }}>
                         {p.demoLink ? (
                           <a
                             href={p.demoLink}
@@ -866,23 +855,33 @@ export default function Portfolio() {
                             rel="noopener noreferrer"
                             className="mono"
                             style={{
-                              flex: 1,
+                              width: "100%",
                               display: "inline-flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              gap: "0.4rem",
-                              background: "#00aaff",
-                              color: "#000",
-                              fontWeight: 700,
-                              padding: "0.6rem 1rem",
-                              borderRadius: "8px",
-                              fontSize: "0.78rem",
+                              gap: "0.5rem",
+                              background: "rgba(255,255,255,0.06)",
+                              border: "1px solid rgba(255,255,255,0.12)",
+                              color: "#ffffff",
+                              fontWeight: 600,
+                              padding: "0.65rem 1rem",
+                              borderRadius: "100px",
+                              fontSize: "0.8rem",
                               textDecoration: "none",
                               textTransform: "uppercase",
+                              letterSpacing: "0.05em",
                               transition: "all 0.2s ease"
                             }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = "#0088cc"; e.currentTarget.style.color = "#ffffff"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = "#00aaff"; e.currentTarget.style.color = "#000000"; }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = "#00aaff";
+                              e.currentTarget.style.color = "#000000";
+                              e.currentTarget.style.borderColor = "#00aaff";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                              e.currentTarget.style.color = "#ffffff";
+                              e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
+                            }}
                           >
                             <span>Live Demo</span>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -892,9 +891,45 @@ export default function Portfolio() {
                             </svg>
                           </a>
                         ) : (
-                          <span className="mono" style={{ flex: 1, display: "inline-flex", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.3)", padding: "0.6rem 1rem", borderRadius: "8px", fontSize: "0.78rem" }}>
-                            Internal Build
-                          </span>
+                          <a
+                            href="/projects"
+                            className="mono"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setNavLoading(true);
+                              window.location.href = "/projects";
+                            }}
+                            style={{
+                              width: "100%",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "0.5rem",
+                              background: "rgba(255,255,255,0.06)",
+                              border: "1px solid rgba(255,255,255,0.12)",
+                              color: "#ffffff",
+                              fontWeight: 600,
+                              padding: "0.65rem 1rem",
+                              borderRadius: "100px",
+                              fontSize: "0.8rem",
+                              textDecoration: "none",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.05em",
+                              transition: "all 0.2s ease"
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = "#00aaff";
+                              e.currentTarget.style.color = "#000000";
+                              e.currentTarget.style.borderColor = "#00aaff";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                              e.currentTarget.style.color = "#ffffff";
+                              e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
+                            }}
+                          >
+                            <span>View Project →</span>
+                          </a>
                         )}
                       </div>
                     </div>
