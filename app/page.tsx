@@ -1001,7 +1001,7 @@ export default function Portfolio() {
             <div className="contact-info-col">
               <div className="contact-info-block">
                 <h3>Direct</h3>
-                <a href="mailto:themayankdhodi@gmail.com" className="contact-email-link">themayankdhodi@gmail.com</a>
+                <a href="mailto:hey@mayankdhodi.online" className="contact-email-link">hey@mayankdhodi.online</a>
               </div>
               <div className="contact-info-block">
                 <h3>Social</h3>
@@ -1069,7 +1069,7 @@ export default function Portfolio() {
             <div className="footer-col">
               <h4>Contact</h4>
               <ul>
-                <li><a href="mailto:themayankdhodi@gmail.com" className="footer-contact-email">themayankdhodi@gmail.com</a></li>
+                <li><a href="mailto:hey@mayankdhodi.online" className="footer-contact-email">hey@mayankdhodi.online</a></li>
                 <li><a href="#">India</a></li>
               </ul>
             </div>
