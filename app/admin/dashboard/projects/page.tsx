@@ -308,12 +308,14 @@ export default function ProjectsManager() {
                       style={{ 
                         ...actionBtnStyle, 
                         background: "#00aaff", 
-                        color: "black", 
+                        color: "#000000", 
                         borderColor: "#00aaff", 
                         fontWeight: "700",
                         display: "inline-flex",
                         alignItems: "center",
-                        gap: "0.5rem"
+                        gap: "0.5rem",
+                        opacity: submitting ? 0.7 : 1,
+                        cursor: submitting ? "not-allowed" : "pointer"
                       }}
                       onMouseEnter={(e) => {
                         if (!submitting) {
@@ -323,11 +325,9 @@ export default function ProjectsManager() {
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (!submitting) {
-                          e.currentTarget.style.background = "#00aaff";
-                          e.currentTarget.style.color = "#000000";
-                          e.currentTarget.style.borderColor = "#00aaff";
-                        }
+                        e.currentTarget.style.background = "#00aaff";
+                        e.currentTarget.style.color = "#000000";
+                        e.currentTarget.style.borderColor = "#00aaff";
                       }}
                     >
                       {submitting ? (
@@ -412,7 +412,7 @@ export default function ProjectsManager() {
                   <div style={{ paddingTop: isEditing ? "1.25rem" : "0" }}>
                     {isEditing ? (
                       <label style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.85rem", color: "rgba(255,255,255,0.8)" }}>
-                        <input type="checkbox" name="featured" defaultChecked={selectedItem?.featured !== false} style={{ cursor: "pointer" }} />
+                        <input type="checkbox" name="featured" defaultChecked={!!selectedItem?.featured} style={{ cursor: "pointer" }} />
                         <span>Feature in Home Page Preview</span>
                       </label>
                     ) : (

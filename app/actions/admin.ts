@@ -299,7 +299,7 @@ export async function saveProject(formData: FormData) {
     githubLink: formData.get("githubLink")?.toString()?.trim() || "",
     category: formData.get("category")?.toString()?.trim() || "Web",
     date: formData.get("date")?.toString()?.trim() || new Date().toISOString().split("T")[0],
-    featured: featuredVal === "true" || featuredVal === "on" || featuredVal === "1" || featuredVal === null ? true : false,
+    featured: featuredVal === "true" || featuredVal === "on" || featuredVal === "1" ? true : false,
   };
 
   try {

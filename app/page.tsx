@@ -800,11 +800,11 @@ export default function Portfolio() {
             </a>
           </div>
 
-          {projectsData.length === 0 ? (
-            <div className="blog-preview-empty mono" style={{ color: "rgba(255,255,255,0.4)", textAlign: "center", padding: "3rem" }}>No projects added yet — check back soon.</div>
+          {projectsData.filter((p: any) => p.featured).length === 0 ? (
+            <div className="blog-preview-empty mono" style={{ color: "rgba(255,255,255,0.4)", textAlign: "center", padding: "3rem" }}>{projectsData.length === 0 ? "No projects added yet — check back soon." : "No featured projects yet — enable 'Feature in Home Page Preview' in the admin panel."}</div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "2rem" }}>
-              {projectsData.slice(0, 4).map((p, i) => {
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "2rem" }}>
+              {projectsData.filter((p: any) => p.featured).slice(0, 6).map((p: any, i: number) => {
                 const tagList = p.tags ? p.tags.split(",").map((t: string) => t.trim()).filter(Boolean) : [];
                 return (
                   <article
