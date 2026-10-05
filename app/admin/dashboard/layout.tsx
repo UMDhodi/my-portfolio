@@ -249,9 +249,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
         /* ── BUTTON HOVERS ── */
         button:hover { opacity: 0.9; }
-        button[type="submit"]:hover {
-          background: rgba(255,68,68,0.15) !important;
-        }
+        /* Only apply red tint to explicitly red/delete buttons, NOT blue save buttons */
         button[style*="background: white"]:hover,
         button[style*="background:#fff"]:hover,
         button[style*="background: #fff"]:hover,
@@ -259,14 +257,17 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           background: #e8e8e8 !important;
           color: black !important;
         }
-        form button[type="submit"][style*="white"]:hover {
-          background: #e8e8e8 !important;
-          color: black !important;
-        }
         form button[type="submit"][style*="ff4444"]:hover,
         form button[type="submit"][style*="#ff4444"]:hover {
           background: rgba(255,68,68,0.15) !important;
           color: #ff4444 !important;
+        }
+        /* Blue save/submit buttons keep their own hover via admin-btn-primary or inline handlers */
+        button[type="submit"][style*="00aaff"]:hover,
+        button[type="submit"][style*="#00aaff"]:hover {
+          background: #0088cc !important;
+          color: #ffffff !important;
+          border-color: #0088cc !important;
         }
         button[style*="rgba(255,68,68"]:hover {
           background: rgba(255,68,68,0.2) !important;
